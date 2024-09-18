@@ -4,20 +4,106 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/text_home"
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/txtCity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="34sp"
+                android:text="Alexandria"
+                tools:text="Alexandria" />
+
+            <TextView
+                android:id="@+id/txtWeather"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:layout_marginTop="15dp"
+                android:textSize="20sp"
+                android:text="Mostly Cloudy"
+                tools:text="Mostly Cloudy" />
+
+            <ImageView
+                android:id="@+id/imgWeather"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:src="@drawable/cloudy_sunny"
+                tools:src="@drawable/cloudy_sunny" />
+
+            <TextView
+                android:id="@+id/txtDateAndTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Mon Jun 17 | 10:00 AM"
+                android:text="Mon Jun 17 | 10:00 AM"
+                android:textAlignment="center"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/white"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/txtWeatherDeg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="25°"
+                android:text="25°"
+                android:textColor="@color/white"
+                android:textAlignment="center"
+                android:textSize="63sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/txtHAndLDeg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="H:27 L:18"
+                android:text="H:27 L:18"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/txtTody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#DCA900"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_marginStart="16dp"
+                android:text="@string/today" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rec_view_hourly"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                tools:listitem="@layout/hourly_item"/>
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
