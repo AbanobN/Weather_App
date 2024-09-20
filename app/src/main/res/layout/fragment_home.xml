@@ -19,28 +19,28 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/txtCity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="100dp"
+                android:text="Alexandria"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="34sp"
-                android:text="Alexandria"
                 tools:text="Alexandria" />
 
             <TextView
                 android:id="@+id/txtWeather"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Mostly Cloudy"
                 android:textAlignment="center"
                 android:textColor="@color/white"
-                android:layout_marginTop="15dp"
                 android:textSize="20sp"
-                android:text="Mostly Cloudy"
                 tools:text="Mostly Cloudy" />
 
             <ImageView
@@ -56,52 +56,290 @@
                 android:id="@+id/txtDateAndTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Mon Jun 17 | 10:00 AM"
+                android:layout_marginTop="10dp"
                 android:text="Mon Jun 17 | 10:00 AM"
                 android:textAlignment="center"
-                android:layout_marginTop="10dp"
                 android:textColor="@color/white"
-                android:textSize="18sp"/>
+                android:textSize="18sp"
+                tools:text="Mon Jun 17 | 10:00 AM" />
 
             <TextView
                 android:id="@+id/txtWeatherDeg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="25°"
                 android:text="25°"
-                android:textColor="@color/white"
                 android:textAlignment="center"
+                android:textColor="@color/white"
                 android:textSize="63sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                tools:text="25°" />
 
             <TextView
                 android:id="@+id/txtHAndLDeg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="H:27 L:18"
                 android:text="H:27 L:18"
                 android:textAlignment="center"
                 android:textColor="@color/white"
-                android:textSize="16sp"/>
+                android:textSize="16sp"
+                tools:text="H:27 L:18" />
 
             <TextView
                 android:id="@+id/txtTody"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#DCA900"
-                android:textStyle="bold"
-                android:textSize="20sp"
                 android:layout_marginStart="16dp"
-                android:text="@string/today" />
+                android:text="@string/today"
+                android:textColor="#DCA900"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rec_view_hourly"
+            <!--            <androidx.recyclerview.widget.RecyclerView-->
+            <!--                android:id="@+id/rec_view_hourly"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:clipToPadding="false"-->
+            <!--                android:paddingStart="16dp"-->
+            <!--                android:paddingEnd="16dp"-->
+            <!--                tools:listitem="@layout/hours_item"/>-->
+            <TextView
+                android:id="@+id/txtNextDays"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/nextDays"
+                android:textColor="#DCA900"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+<!--            <androidx.recyclerview.widget.RecyclerView-->
+<!--                android:id="@+id/rec_view_days"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                tools:listitem="@layout/days_item"-->
+<!--                android:nestedScrollingEnabled="true" />-->
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                tools:listitem="@layout/hourly_item"/>
+                android:layout_margin="8dp"
+                android:background="@drawable/weather_des_bg"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:layout_weight="0.333"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/imgPressure"
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_pressure" />
+
+                        <TextView
+                            android:id="@+id/txtPressureDeg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22%"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            tools:text="22%" />
+
+                        <TextView
+                            android:id="@+id/txtPressure"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/pressure"
+                            android:textAlignment="center"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:layout_weight="0.333"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/imgHumidty"
+                            android:layout_width="34dp"
+                            android:layout_height="41dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_humidity" />
+
+                        <TextView
+                            android:id="@+id/txtHumidtyDeg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22%"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            tools:text="22%" />
+
+                        <TextView
+                            android:id="@+id/txtHumidty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/humidty"
+                            android:textAlignment="center"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:layout_weight="0.333"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/imageWind"
+                            android:layout_width="31dp"
+                            android:layout_height="41dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_wind" />
+
+                        <TextView
+                            android:id="@+id/txtWindDeg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22%"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            tools:text="22%" />
+
+                        <TextView
+                            android:id="@+id/txtWind"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/wind"
+                            android:textAlignment="center"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:layout_weight="0.333"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/imgCloud"
+                            android:layout_width="34dp"
+                            android:layout_height="39dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_cloud" />
+
+                        <TextView
+                            android:id="@+id/txtCloud4eg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22%"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            tools:text="22%" />
+
+                        <TextView
+                            android:id="@+id/txtCloud"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/cloud"
+                            android:textAlignment="center"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:layout_weight="0.333"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/imgUV"
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_uv" />
+
+                        <TextView
+                            android:id="@+id/txtUVDeg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22%"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            tools:text="22%" />
+
+                        <TextView
+                            android:id="@+id/txtUV"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ultra_violet"
+                            android:textAlignment="center"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:layout_weight="0.333"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/imgVisibilty"
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_visibility" />
+
+                        <TextView
+                            android:id="@+id/txtVisibiltyDeg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22%"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            tools:text="22%" />
+
+                        <TextView
+                            android:id="@+id/txtVisibilty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/visibilty"
+                            android:textAlignment="center"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
 
         </LinearLayout>
     </ScrollView>

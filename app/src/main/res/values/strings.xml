@@ -10,5 +10,12 @@
     <string name="menu_favorites">Favorites</string>
     <string name="menu_alerts">Alerts</string>
     <string name="menu_settings">Settings</string>
-    <string name="today">Today</string>
+    <string name="today">Next 24 Hours</string>
+    <string name="nextDays">Next 5 Days</string>
+    <string name="pressure">Pressure</string>
+    <string name="humidty">Humidty</string>
+    <string name="wind">Wind</string>
+    <string name="cloud">Cloud</string>
+    <string name="ultra_violet">Ultra Violet</string>
+    <string name="visibilty">Visibilty</string>
 </resources>
