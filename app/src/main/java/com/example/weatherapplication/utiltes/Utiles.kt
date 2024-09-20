@@ -43,40 +43,40 @@ fun convertWindSpeed(speed: Double, unit: String = "mps", locale: Locale = Local
 fun getWeatherIconResource(iconCode: String): Int {
     return when (iconCode) {
         // Clear sky
-        "01d" -> R.drawable.clear_sky      // Clear sky (day)
-        "01n" -> R.drawable.clear_sky_night    // Clear sky (night)
+        "01d" -> R.drawable.clear_sky
+        "01n" -> R.drawable.clear_sky_night
 
         // Few clouds
-        "02d" -> R.drawable.few_cloud     // Few clouds (day)
-        "02n" -> R.drawable.few_cloud_night   // Few clouds (night)
+        "02d" -> R.drawable.few_cloud
+        "02n" -> R.drawable.few_cloud_night
 
         // Scattered clouds
-        "03d" -> R.drawable.cloudy   // Scattered clouds (day)
-        "03n" -> R.drawable.cloudy_night   // Scattered clouds (night)
+        "03d" -> R.drawable.cloudy
+        "03n" -> R.drawable.cloudy_night
 
         // Broken clouds
-        "04d" -> R.drawable.broken_cloud      // Broken clouds (day)
-        "04n" -> R.drawable.broken_cloud_night      // Broken clouds (night)
+        "04d" -> R.drawable.broken_cloud
+        "04n" -> R.drawable.broken_cloud_night
 
         // Shower rain
-        "09d" -> R.drawable.rain    // Shower rain (day)
-        "09n" -> R.drawable.rain_night  // Shower rain (night)
+        "09d" -> R.drawable.rain
+        "09n" -> R.drawable.rain_night
 
         // Rain
-        "10d" -> R.drawable.rain       // Rain (day)
-        "10n" -> R.drawable.rain_night     // Rain (night)
+        "10d" -> R.drawable.rain
+        "10n" -> R.drawable.rain_night
 
         // Thunderstorm
-        "11d" -> R.drawable.thunderstorm   // Thunderstorm (day)
-        "11n" -> R.drawable.thunderstorm_night // Thunderstorm (night)
+        "11d" -> R.drawable.thunderstorm
+        "11n" -> R.drawable.thunderstorm_night
 
         // Snow
-        "13d" -> R.drawable.snow       // Snow (day)
-        "13n" -> R.drawable.snow_night     // Snow (night)
+        "13d" -> R.drawable.snow
+        "13n" -> R.drawable.snow_night
 
         // Mist
-        "50d" -> R.drawable.mist       // Mist (day)
-        "50n" -> R.drawable.mist_night     // Mist (night)
+        "50d" -> R.drawable.mist
+        "50n" -> R.drawable.mist_night
 
         // Default
         else -> R.drawable.default_weather_icon
