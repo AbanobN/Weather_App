@@ -1,9 +1,10 @@
 package com.example.weatherapplication.data.remotedatasource.remotedatasource
 
-import com.example.weather_app_demo.data.pojo.ForecastResponse
-import com.example.weather_app_demo.data.pojo.UVResponse
-import com.example.weather_app_demo.data.pojo.WeatherResponse
-import com.example.weather_app_demo.data.retrofit.RetrofitInstance
+
+import com.example.weatherapplication.data.pojo.ForecastResponse
+import com.example.weatherapplication.data.pojo.UVResponse
+import com.example.weatherapplication.data.pojo.WeatherResponse
+import com.example.weatherapplication.data.remotedatasource.retrofit.RetrofitInstance
 import retrofit2.Response
 
 class RemoteDataSource {

@@ -1,8 +1,9 @@
 package com.example.weatherapplication.data.repository
 
-import com.example.weather_app_demo.data.pojo.ForecastItem
-import com.example.weather_app_demo.data.pojo.WeatherResponse
-import com.example.weather_app_demo.utiltes.formatDate
+
+import com.example.weatherapplication.utiltes.formatDate
+import com.example.weatherapplication.data.pojo.ForecastItem
+import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 
 class WeatherRepository(private val remoteDataSource: RemoteDataSource) {
