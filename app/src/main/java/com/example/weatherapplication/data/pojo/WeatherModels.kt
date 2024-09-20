@@ -1,4 +1,4 @@
-package com.example.weather_app_demo.data.pojo
+package com.example.weatherapplication.data.pojo
 
 data class WeatherResponse(
     val main: Main,

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context=".ui.home.HomeFragment">
+    tools:context=".ui.home.view.HomeFragment">
 
 
     <ScrollView
@@ -92,16 +92,19 @@
                 android:text="@string/today"
                 android:textColor="#DCA900"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="10dp"/>
 
-            <!--            <androidx.recyclerview.widget.RecyclerView-->
-            <!--                android:id="@+id/rec_view_hourly"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="match_parent"-->
-            <!--                android:clipToPadding="false"-->
-            <!--                android:paddingStart="16dp"-->
-            <!--                android:paddingEnd="16dp"-->
-            <!--                tools:listitem="@layout/hours_item"/>-->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rec_view_hourly"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                tools:listitem="@layout/hours_item" />
+
             <TextView
                 android:id="@+id/txtNextDays"
                 android:layout_width="match_parent"
@@ -110,14 +113,17 @@
                 android:text="@string/nextDays"
                 android:textColor="#DCA900"
                 android:textSize="20sp"
-                android:textStyle="bold" />
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/rec_view_days"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_weight="1"-->
-<!--                tools:listitem="@layout/days_item"-->
-<!--                android:nestedScrollingEnabled="true" />-->
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="10dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rec_view_days"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:nestedScrollingEnabled="true"
+                tools:listitem="@layout/days_item" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -252,7 +258,7 @@
                             android:src="@drawable/ic_cloud" />
 
                         <TextView
-                            android:id="@+id/txtCloud4eg"
+                            android:id="@+id/txtCloudDeg"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="22%"

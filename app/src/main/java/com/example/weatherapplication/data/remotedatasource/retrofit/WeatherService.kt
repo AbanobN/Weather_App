@@ -1,8 +1,9 @@
-package com.example.weather_app_demo.data.retrofit
+package com.example.weatherapplication.data.remotedatasource.retrofit
 
-import com.example.weather_app_demo.data.pojo.ForecastResponse
-import com.example.weather_app_demo.data.pojo.UVResponse
-import com.example.weather_app_demo.data.pojo.WeatherResponse
+
+import com.example.weatherapplication.data.pojo.ForecastResponse
+import com.example.weatherapplication.data.pojo.UVResponse
+import com.example.weatherapplication.data.pojo.WeatherResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
