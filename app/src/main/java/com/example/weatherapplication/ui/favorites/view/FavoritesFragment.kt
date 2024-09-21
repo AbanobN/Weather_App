@@ -6,16 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weatherapplication.R
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.pojo.City
+import com.example.weatherapplication.data.pojo.Coord
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentFavoritesBinding
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesViewModelFactory
 
-class FavoritesFragment : Fragment() {
+class FavoritesFragment : Fragment() , FavoritesClickListener{
 
     private lateinit var fragmentFavoritesBinding: FragmentFavoritesBinding
     private lateinit var favoritesAdapter: FavoritesAdapter
@@ -33,6 +37,9 @@ class FavoritesFragment : Fragment() {
         favoritesViewModel =
             ViewModelProvider(this, FavoritesViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(FavoritesViewModel::class.java)
 
+
+        favoritesViewModel.addFavorite(City("Cairo", Coord(31.24967,30.06263)))
+
         favoritesViewModel.fetchFavorites()
 
         fragmentFavoritesBinding = FragmentFavoritesBinding.inflate(inflater, container, false)
@@ -44,7 +51,8 @@ class FavoritesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        favoritesAdapter = FavoritesAdapter()
+        favoritesAdapter = FavoritesAdapter (this)
+
         fragmentFavoritesBinding.recViewFavorites.apply {
             adapter = favoritesAdapter
             layoutManager = LinearLayoutManager(context)
@@ -53,6 +61,10 @@ class FavoritesFragment : Fragment() {
         favoritesViewModel.favoritesLiveData.observe(viewLifecycleOwner) { favorites ->
             favoritesAdapter.submitList(favorites)
             showHideRecView()
+        }
+
+        fragmentFavoritesBinding.openMapBtn.setOnClickListener{
+            findNavController().navigate(R.id.action_nav_favorites_to_mapFragment)
         }
     }
 
@@ -70,7 +82,22 @@ class FavoritesFragment : Fragment() {
         else
         {
             fragmentFavoritesBinding.noFavorites.visibility = View.GONE
+            fragmentFavoritesBinding.recViewFavorites.visibility = View.VISIBLE
 
         }
     }
+
+    override fun onCancelClick(city: City) {
+        favoritesViewModel.removeFavorite(city.name)
+    }
+
+    override fun onItemClick(city: City) {
+        val bundle = Bundle().apply {
+            putDouble("lon", city.coord.lon)
+            putDouble("lat", city.coord.lat)
+        }
+
+        findNavController().navigate(R.id.action_favoritesFragment_to_favoritesDetailsFragment, bundle)
+    }
+
 }

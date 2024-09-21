@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapplication.R
 import com.example.weatherapplication.data.pojo.City
+import com.example.weatherapplication.databinding.FavoritesItemBinding
 
 
 class CityDiffUtil : DiffUtil.ItemCallback<City>() {
@@ -20,28 +21,31 @@ class CityDiffUtil : DiffUtil.ItemCallback<City>() {
     }
 }
 
-class FavoritesAdapter : ListAdapter<City, FavoritesAdapter.ViewHolder>(CityDiffUtil()) {
+class FavoritesAdapter(private val listener: FavoritesClickListener) : ListAdapter<City, FavoritesAdapter.ViewHolder>(CityDiffUtil()) {
 
-    private var onItemClickListener: ((City) -> Unit)? = null
 
-    fun setOnItemClickListener(listener: (City) -> Unit) {
-        onItemClickListener = listener
-    }
+    class ViewHolder(private val binding: FavoritesItemBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(city: City, listener: FavoritesClickListener) {
+            binding.txtCityName.text = city.name
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            binding.cancelButton.setOnClickListener {
+                listener.onCancelClick(city)
+            }
+
+            binding.root.setOnClickListener {
+                listener.onItemClick(city)
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.favorites_item, parent, false)
-        return ViewHolder(view)
+        val binding = FavoritesItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val product = getItem(position)
-
-        holder.itemView.setOnClickListener {
-            onItemClickListener?.invoke(product)
-        }
+        val city = getItem(position)
+        holder.bind(city, listener)
     }
 
 }

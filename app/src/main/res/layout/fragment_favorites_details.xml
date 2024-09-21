@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context=".ui.home.view.HomeFragment">
-
+    tools:context=".ui.favorites.view.FavoritesDetailsFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -21,75 +20,93 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/txtCity"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="100dp"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="34sp"
-                tools:text="Alexandria" />
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/rounded_toolbar_background"
+                android:orientation="vertical"
+                android:layout_marginTop="100dp">
 
-            <TextView
-                android:id="@+id/txtWeather"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                tools:text="Mostly Cloudy" />
+                <TextView
+                    android:id="@+id/txtCity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="34sp"
+                    tools:text="Alexandria" />
 
-            <ImageView
-                android:id="@+id/imgWeather"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="15dp"
-                android:src="@drawable/cloudy_sunny"
-                tools:src="@drawable/cloudy_sunny" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="16dp"
+                    android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/txtDateAndTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                tools:text="Mon Jun 17 | 10:00 AM" />
+                    <ImageView
+                        android:id="@+id/imgWeather"
+                        android:layout_width="0dp"
+                        android:layout_height="200dp"
+                        android:layout_weight="0.5"
+                        android:src="@drawable/broken_cloud" />
 
-            <TextView
-                android:id="@+id/txtWeatherDeg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="63sp"
-                android:textStyle="bold"
-                tools:text="25°" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
+                        android:layout_weight="0.5"
+                        android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/txtHAndLDeg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                tools:text="H:27 L:18" />
+                        <TextView
+                            android:id="@+id/txtWeather"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="20sp"
+                            tools:text="Mostly Cloudy" />
+
+                        <TextView
+                            android:id="@+id/txtWeatherDeg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="63sp"
+                            android:textStyle="bold"
+                            tools:text="25°" />
+
+                        <TextView
+                            android:id="@+id/txtHAndLDeg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            tools:text="H:27 L:18" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
 
             <TextView
                 android:id="@+id/txtTody"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="10dp"
                 android:text="@string/today"
                 android:textColor="#DCA900"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="10dp"/>
+                android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rec_view_hourly"
@@ -105,12 +122,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="10dp"
                 android:text="@string/nextDays"
                 android:textColor="#DCA900"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="10dp" />
+                android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rec_view_days"
@@ -337,6 +354,8 @@
 
 
         </LinearLayout>
+
     </ScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

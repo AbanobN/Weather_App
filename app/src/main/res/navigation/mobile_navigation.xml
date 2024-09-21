@@ -15,7 +15,20 @@
         android:id="@+id/nav_favorites"
         android:name="com.example.weatherapplication.ui.favorites.view.FavoritesFragment"
         android:label="@string/menu_favorites"
-        tools:layout="@layout/fragment_favorites" />
+        tools:layout="@layout/fragment_favorites">
+        <action
+            android:id="@+id/action_favoritesFragment_to_favoritesDetailsFragment"
+            app:destination="@id/nav_favorites_details" />
+        <action
+            android:id="@+id/action_nav_favorites_to_mapFragment"
+            app:destination="@id/mapFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_favorites_details"
+        android:name="com.example.weatherapplication.ui.favorites.view.FavoritesDetailsFragment"
+        android:label="@string/menu_favorites"
+        tools:layout="@layout/fragment_favorites_details"/>
 
     <fragment
         android:id="@+id/nav_alerts"
@@ -28,5 +41,14 @@
         android:name="com.example.weatherapplication.ui.settings.SettingsFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.weatherapplication.ui.map.MapFragment"
+        android:label="@string/map"
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_mapFragment_to_nav_favorites"
+            app:destination="@id/nav_favorites" />
+    </fragment>
 
 </navigation>
