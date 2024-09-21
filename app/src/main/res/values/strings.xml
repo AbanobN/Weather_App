@@ -18,4 +18,6 @@
     <string name="cloud">Cloud</string>
     <string name="ultra_violet">Ultra Violet</string>
     <string name="visibilty">Visibilty</string>
+    <string name="cancel">Cancel</string>
+    <string name="nofavorites">No Favorites</string>
 </resources>

@@ -33,8 +33,8 @@ class HomeFragment : Fragment() {
         fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
-        val lat = 31.205753
-        val lon = 29.924526
+        val lat = 30.06263
+        val lon = 31.24967
         val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
         homeViewModel.apply {
