@@ -1,5 +1,9 @@
 package com.example.weatherapplication.data.pojo
 
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 data class WeatherResponse(
     val main: Main,
     val weather: List<Weather>,
@@ -44,9 +48,10 @@ data class ForecastResponse(
     val list: List<ForecastItem>
 )
 
+@Entity(tableName = "FavoritesCity")
 data class City(
-    val name: String,
-    val coord: Coord
+    @PrimaryKey val name: String,
+    @Embedded val coord: Coord
 )
 
 

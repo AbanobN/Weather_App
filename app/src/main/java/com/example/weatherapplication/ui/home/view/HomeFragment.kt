@@ -7,10 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weatherapplication.data.localdatasource.database.AppDatabase
+import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
+import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
+import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentHomeBinding
 import com.example.weatherapplication.ui.home.viewmodel.HomeViewModel
+import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
 import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertToLocalTime
 import com.example.weatherapplication.utiltes.convertWindSpeed
@@ -31,7 +36,12 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
-        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+
+        val remoteDataSource = RemoteDataSource()
+        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
+
+        homeViewModel = ViewModelProvider(this, HomeViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
+            HomeViewModel::class.java)
 
         val lat = 30.06263
         val lon = 31.24967

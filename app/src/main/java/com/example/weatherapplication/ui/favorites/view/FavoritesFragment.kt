@@ -7,21 +7,33 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weatherapplication.data.localdatasource.database.AppDatabase
+import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
+import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentFavoritesBinding
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesViewModel
+import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesViewModelFactory
 
 class FavoritesFragment : Fragment() {
 
     private lateinit var fragmentFavoritesBinding: FragmentFavoritesBinding
     private lateinit var favoritesAdapter: FavoritesAdapter
+    private lateinit var favoritesViewModel:FavoritesViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val favoritesViewModel =
-            ViewModelProvider(this).get(FavoritesViewModel::class.java)
+
+        val remoteDataSource = RemoteDataSource()
+        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
+
+        favoritesViewModel =
+            ViewModelProvider(this, FavoritesViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(FavoritesViewModel::class.java)
+
+        favoritesViewModel.fetchFavorites()
 
         fragmentFavoritesBinding = FragmentFavoritesBinding.inflate(inflater, container, false)
         val root: View = fragmentFavoritesBinding.root
@@ -31,8 +43,25 @@ class FavoritesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        favoritesAdapter = FavoritesAdapter()
 
+        favoritesAdapter = FavoritesAdapter()
+        fragmentFavoritesBinding.recViewFavorites.apply {
+            adapter = favoritesAdapter
+            layoutManager = LinearLayoutManager(context)
+        }
+
+        favoritesViewModel.favoritesLiveData.observe(viewLifecycleOwner) { favorites ->
+            favoritesAdapter.submitList(favorites)
+            showHideRecView()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+    }
+
+    private fun showHideRecView()
+    {
         if(favoritesAdapter.currentList.isEmpty())
         {
             fragmentFavoritesBinding.recViewFavorites.visibility = View.GONE
@@ -41,15 +70,7 @@ class FavoritesFragment : Fragment() {
         else
         {
             fragmentFavoritesBinding.noFavorites.visibility = View.GONE
-            fragmentFavoritesBinding.recViewFavorites.apply {
-                adapter = favoritesAdapter
-                layoutManager = LinearLayoutManager(context)
-            }
+
         }
-
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
     }
 }
