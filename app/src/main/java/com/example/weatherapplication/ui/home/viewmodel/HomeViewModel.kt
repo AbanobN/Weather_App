@@ -6,14 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
-import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
-
-    private val remoteDataSource = RemoteDataSource()
-    private val weatherRepository = WeatherRepository(remoteDataSource)
+class HomeViewModel (private val weatherRepository: WeatherRepository) : ViewModel() {
 
     private val _weatherData = MutableLiveData<WeatherResponse>()
     val weatherData: LiveData<WeatherResponse> = _weatherData

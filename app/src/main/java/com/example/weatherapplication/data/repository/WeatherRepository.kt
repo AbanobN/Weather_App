@@ -1,12 +1,17 @@
 package com.example.weatherapplication.data.repository
 
 
+import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.utiltes.formatDate
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 
-class WeatherRepository(private val remoteDataSource: RemoteDataSource) {
+class WeatherRepository(
+    private val remoteDataSource: RemoteDataSource,
+    private val localDataSource: LocalDataSource
+    ) {
 
     suspend fun fetchWeather(lat: Double, lon: Double, apiKey: String): WeatherResponse? {
         val weatherResponse = remoteDataSource.getWeather(lat, lon, apiKey)
@@ -38,5 +43,17 @@ class WeatherRepository(private val remoteDataSource: RemoteDataSource) {
         } else {
             null // Handle errors
         }
+    }
+
+    suspend fun getAllCities(): List<City> {
+        return localDataSource.getAllCities()
+    }
+
+    suspend fun insertCity(city: City) {
+        localDataSource.insertCity(city)
+    }
+
+    suspend fun deleteCity(cityName: String) {
+        localDataSource.deleteCity(cityName)
     }
 }
