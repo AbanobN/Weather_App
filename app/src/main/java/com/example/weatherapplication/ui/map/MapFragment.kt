@@ -7,8 +7,18 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.weatherapplication.R
+import com.example.weatherapplication.data.localdatasource.database.AppDatabase
+import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
+import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentMapBinding
+import com.example.weatherapplication.ui.home.viewmodel.HomeViewModel
+import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
+import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.library.BuildConfig
@@ -20,6 +30,7 @@ import org.osmdroid.views.overlay.Marker
 class MapFragment : Fragment() {
 
     private lateinit var binding: FragmentMapBinding
+    private lateinit var mapViewModel: MapViewModel
     private var marker: Marker? = null
 
     var lat :Double=0.0
@@ -29,6 +40,11 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val remoteDataSource = RemoteDataSource()
+        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
+        mapViewModel = ViewModelProvider(this, MapViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
+            MapViewModel::class.java)
+
         binding= FragmentMapBinding.inflate(inflater,container,false)
 
         return binding.root
@@ -36,6 +52,18 @@ class MapFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        lifecycleScope.launch {
+            mapViewModel.operationStatus.collect{ state ->
+                when(state)
+                {
+                    "Done" -> findNavController().navigate(R.id.action_mapFragment_to_nav_favorites)
+                    "Failure" -> Toast.makeText(context, "Failed to add city.", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+        }
+
 
         // Initialize map
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
@@ -68,32 +96,33 @@ class MapFragment : Fragment() {
 
     private fun updateMarkerPosition(location: GeoPoint) {
         if (marker == null) {
-            marker = Marker(binding.map)
-            marker?.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            marker = Marker(binding.map).apply {
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
 
-            val customMarkerIcon = ContextCompat.getDrawable(requireContext(), R.drawable.map_marker)
-            marker?.icon = customMarkerIcon
+                val customMarkerIcon = ContextCompat.getDrawable(requireContext(), R.drawable.map_marker)
+                icon = customMarkerIcon
 
-            val customInfoWindow = CustomMapInfo(binding.map, requireContext())
-            marker?.infoWindow = customInfoWindow
+                val customInfoWindow = CustomMapInfo(binding.map, requireContext(), mapViewModel,lifecycleScope)
+                infoWindow = customInfoWindow
 
-
-            marker?.setOnMarkerClickListener { m, _ ->
-                if (!m.isInfoWindowShown) {
-                    m.showInfoWindow()
+                setOnMarkerClickListener { m, _ ->
+                    m.closeInfoWindow()
+                    true
                 }
-                true
-            }
 
-            binding.map.overlays.add(marker)
+                binding.map.overlays.add(this)
+            }
         }
 
-       marker?.closeInfoWindow()
+        marker?.apply {
+            position = location
+            showInfoWindow()
+        }
 
-        marker?.position = location
 
         binding.map.invalidate()
     }
+
 
     override fun onResume() {
         super.onResume()
