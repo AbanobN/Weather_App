@@ -8,6 +8,7 @@ import com.example.weatherapplication.data.pojo.LocationResponse
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.utiltes.formatDate
+import kotlinx.coroutines.flow.Flow
 
 class WeatherRepository(
     private val remoteDataSource: RemoteDataSource,
@@ -56,7 +57,7 @@ class WeatherRepository(
         }
     }
 
-    suspend fun getAllCities(): List<City> {
+    fun getAllCities(): Flow<List<City>> {
         return localDataSource.getAllCities()
     }
 

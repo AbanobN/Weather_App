@@ -5,12 +5,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.weatherapplication.data.pojo.City
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CityDao {
 
     @Query("SELECT * FROM FavoritesCity")
-    suspend fun getAllCities(): List<City>
+    fun getAllCities(): Flow<List<City>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCity(city: City)

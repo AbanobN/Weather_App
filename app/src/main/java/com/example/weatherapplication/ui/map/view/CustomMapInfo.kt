@@ -1,13 +1,12 @@
-package com.example.weatherapplication.ui.map
+package com.example.weatherapplication.ui.map.view
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.widget.Toast
 import com.example.weatherapplication.R
 import com.example.weatherapplication.databinding.CustomMapInfoBinding
+import com.example.weatherapplication.ui.map.viewmodel.MapViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow

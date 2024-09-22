@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.map
+package com.example.weatherapplication.ui.map.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,8 +16,8 @@ import com.example.weatherapplication.data.localdatasource.localdatsource.LocalD
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentMapBinding
-import com.example.weatherapplication.ui.home.viewmodel.HomeViewModel
-import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
+import com.example.weatherapplication.ui.map.viewmodel.MapViewModel
+import com.example.weatherapplication.ui.map.viewmodel.MapViewModelFactory
 import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver

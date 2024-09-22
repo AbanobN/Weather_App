@@ -43,7 +43,7 @@
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.example.weatherapplication.ui.map.MapFragment"
+        android:name="com.example.weatherapplication.ui.map.view.MapFragment"
         android:label="@string/map"
         tools:layout="@layout/fragment_map">
         <action

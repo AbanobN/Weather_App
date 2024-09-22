@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapplication.R
@@ -18,6 +19,7 @@ import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentFavoritesBinding
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesViewModelFactory
+import kotlinx.coroutines.launch
 
 class FavoritesFragment : Fragment() , FavoritesClickListener{
 
@@ -58,9 +60,11 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
             layoutManager = LinearLayoutManager(context)
         }
 
-        favoritesViewModel.favoritesLiveData.observe(viewLifecycleOwner) { favorites ->
-            favoritesAdapter.submitList(favorites)
-            showHideRecView()
+        lifecycleScope.launch {
+            favoritesViewModel.favoritesList.collect { favorites ->
+                favoritesAdapter.submitList(favorites)
+                showHideRecView(favorites)
+            }
         }
 
         fragmentFavoritesBinding.openMapBtn.setOnClickListener{
@@ -68,13 +72,10 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
 
-    private fun showHideRecView()
+    private fun showHideRecView(favoritesList: List<City>)
     {
-        if(favoritesAdapter.currentList.isEmpty())
+        if(favoritesList.isEmpty())
         {
             fragmentFavoritesBinding.recViewFavorites.visibility = View.GONE
             fragmentFavoritesBinding.noFavorites.visibility = View.VISIBLE

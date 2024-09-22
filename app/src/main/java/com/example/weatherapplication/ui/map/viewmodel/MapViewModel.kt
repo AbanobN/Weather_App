@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.map
+package com.example.weatherapplication.ui.map.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.weatherapplication.data.pojo.City
