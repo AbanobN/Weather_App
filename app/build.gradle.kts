@@ -65,4 +65,7 @@ dependencies {
     kapt (libs.androidx.room.compiler)
     implementation (libs.androidx.room.ktx)
 
+    implementation (libs.androidx.navigation.fragment.ktx.v281)
+    implementation (libs.androidx.navigation.ui.ktx)
+    implementation (libs.osmdroid.android)
 }

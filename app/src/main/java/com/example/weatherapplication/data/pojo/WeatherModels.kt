@@ -12,8 +12,8 @@ data class WeatherResponse(
     val clouds: Clouds,
     val dt: Long,
     val timezone: Int,
-    val name: String,
     val coord: Coord,
+    var name: String,
     var uV : UVResponse? = null
 )
 
@@ -39,8 +39,8 @@ data class Wind(val speed: Double)
 
 data class Clouds(val all: Int)
 
-data class Sys(
-    val country: String
+data class LocationResponse(
+    val name: String
 )
 
 

@@ -11,6 +11,7 @@
         android:id="@+id/rec_view_favorites"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="100dp"
         android:visibility="gone"
         tools:listitem="@layout/favorites_item"/>
 
@@ -45,4 +46,18 @@
             android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/openMapBtn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_toolbar_background"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="@color/background_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

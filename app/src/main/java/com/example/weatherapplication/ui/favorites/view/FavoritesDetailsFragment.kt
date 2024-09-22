@@ -1,6 +1,7 @@
-package com.example.weatherapplication.ui.home.view
+package com.example.weatherapplication.ui.favorites.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,81 +14,81 @@ import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
-import com.example.weatherapplication.databinding.FragmentHomeBinding
+import com.example.weatherapplication.databinding.FragmentFavoritesDetailsBinding
 import com.example.weatherapplication.ui.adapters.DailyAdapter
 import com.example.weatherapplication.ui.adapters.HourlyAdapter
-import com.example.weatherapplication.ui.home.viewmodel.HomeViewModel
-import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
+import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesDetailsViewModel
+import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesDetailsViewModelFactory
 import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertToLocalTime
 import com.example.weatherapplication.utiltes.convertWindSpeed
 import com.example.weatherapplication.utiltes.getWeatherIconResource
 
-class HomeFragment : Fragment() {
 
-    private lateinit var homeViewModel: HomeViewModel
+class FavoritesDetailsFragment : Fragment() {
+
+    private lateinit var favoritesDetailsViewModel: FavoritesDetailsViewModel
     private lateinit var hourlyAdapter: HourlyAdapter
     private lateinit var dailyAdapter: DailyAdapter
     private val tempUnit = "C"
 
-    private lateinit var fragmentHomeBinding: FragmentHomeBinding
+    private lateinit var favoritesDetailsBinding: FragmentFavoritesDetailsBinding
+
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
+        favoritesDetailsBinding = FragmentFavoritesDetailsBinding.inflate(inflater, container, false)
 
         val remoteDataSource = RemoteDataSource()
         val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
 
-        homeViewModel = ViewModelProvider(this, HomeViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
-            HomeViewModel::class.java)
+        favoritesDetailsViewModel = ViewModelProvider(this, FavoritesDetailsViewModelFactory(
+            WeatherRepository(remoteDataSource,localDataSource)
+        )).get(
+        FavoritesDetailsViewModel::class.java)
 
-        val lat = 31.199004
-        val lon = 29.894378
+        val lon = arguments?.getDouble("lon") ?: 0.0
+        val lat = arguments?.getDouble("lat") ?: 0.0
         val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
-        homeViewModel.apply {
+        favoritesDetailsViewModel.apply {
             fetchWeather(lat, lon, apiKey)
             fetchForecast(lat, lon, apiKey)
         }
 
-        return fragmentHomeBinding.root
+        return favoritesDetailsBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerViews()
 
-        homeViewModel.weatherData.observe(viewLifecycleOwner) { weatherResponse ->
+        favoritesDetailsViewModel.weatherData.observe(viewLifecycleOwner) { weatherResponse ->
             weatherResponse?.let { updateUI(it) }
         }
 
-        homeViewModel.days.observe(viewLifecycleOwner) { dailyForecasts ->
+        favoritesDetailsViewModel.days.observe(viewLifecycleOwner) { dailyForecasts ->
             updateDailyRecycler(dailyForecasts)
         }
 
-        homeViewModel.hours.observe(viewLifecycleOwner) { hourlyForecasts ->
+        favoritesDetailsViewModel.hours.observe(viewLifecycleOwner) { hourlyForecasts ->
             updateHourlyRecycler(hourlyForecasts)
         }
     }
 
     private fun setupRecyclerViews() {
-        fragmentHomeBinding.recViewHourly.layoutManager =
+        favoritesDetailsBinding.recViewHourly.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        fragmentHomeBinding.recViewDays.layoutManager = LinearLayoutManager(context)
+
+        favoritesDetailsBinding.recViewDays.layoutManager = LinearLayoutManager(context)
     }
 
     private fun updateUI(weatherResponse: WeatherResponse) {
-        with(fragmentHomeBinding) {
-            val localTime = convertToLocalTime(weatherResponse.dt, weatherResponse.timezone)
-
+        with(favoritesDetailsBinding) {
             txtCity.text = weatherResponse.name
             txtWeather.text = weatherResponse.weather[0].description
-            "${localTime.first} | ${localTime.second}".also { txtDateAndTime.text = it }
             txtWeatherDeg.text = convertTemperature(weatherResponse.main.temp, tempUnit)
             "H:${convertTemperature(weatherResponse.main.temp_max, tempUnit)}  L:${convertTemperature(weatherResponse.main.temp_min, tempUnit)}".also { txtHAndLDeg.text = it }
             "${weatherResponse.main.pressure} hPa".also { txtPressureDeg.text = it }
@@ -102,14 +103,13 @@ class HomeFragment : Fragment() {
             imgWeather.setImageResource(iconResource)
         }
     }
-
     private fun updateHourlyRecycler(hourlyForecasts: List<ForecastItem>) {
         hourlyAdapter = HourlyAdapter(hourlyForecasts, tempUnit)
-        fragmentHomeBinding.recViewHourly.adapter = hourlyAdapter
+        favoritesDetailsBinding.recViewHourly.adapter = hourlyAdapter
     }
 
     private fun updateDailyRecycler(dailyForecasts: List<ForecastItem>) {
         dailyAdapter = DailyAdapter(dailyForecasts, tempUnit)
-        fragmentHomeBinding.recViewDays.adapter = dailyAdapter
+        favoritesDetailsBinding.recViewDays.adapter = dailyAdapter
     }
 }
