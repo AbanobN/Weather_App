@@ -21,12 +21,6 @@ class FavoritesViewModel(private val weatherRepository: WeatherRepository) : Vie
         }
     }
 
-    fun addFavorite(city: City) {
-        viewModelScope.launch {
-            weatherRepository.insertCity(city)
-        }
-    }
-
     fun removeFavorite(cityName: String) {
         viewModelScope.launch {
             weatherRepository.deleteCity(cityName)

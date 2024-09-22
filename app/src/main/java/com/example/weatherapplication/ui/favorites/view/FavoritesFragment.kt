@@ -40,8 +40,6 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
             ViewModelProvider(this, FavoritesViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(FavoritesViewModel::class.java)
 
 
-        favoritesViewModel.addFavorite(City("Cairo", Coord(31.24967,30.06263)))
-
         favoritesViewModel.fetchFavorites()
 
         fragmentFavoritesBinding = FragmentFavoritesBinding.inflate(inflater, container, false)
