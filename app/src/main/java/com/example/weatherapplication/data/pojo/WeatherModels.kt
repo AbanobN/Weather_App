@@ -40,7 +40,9 @@ data class Wind(val speed: Double)
 data class Clouds(val all: Int)
 
 data class LocationResponse(
-    val name: String
+    val name: String,
+    val lon: Double,
+    val lat: Double
 )
 
 

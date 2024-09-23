@@ -18,32 +18,32 @@ class MapViewModel(private val weatherRepository: WeatherRepository) : ViewModel
     private val _operationStatus = MutableStateFlow("")
     val operationStatus: StateFlow<String> get() = _operationStatus
 
+    private val _cityStatus = MutableStateFlow(City("",Coord(0.0,0.0)))
+    val cityStatus: StateFlow<City> get() = _cityStatus
+
     private val _searchFlow = MutableSharedFlow<String>(replay = 1)
     val searchFlow: SharedFlow<String> = _searchFlow
 
     private val countries = arrayListOf(
-
-        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola",
-        "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
-        "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
-        "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
-        "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei",
-        "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
-        "Cameroon", "Canada", "Central African Republic", "Chad", "Chile",
-        "China", "Colombia", "Comoros", "Congo", "Costa Rica",
-        "Cuba", "Croatia", "Cyprus", "Czech Republic", "Denmark",
-
         "Cairo", "Alexandria", "Giza", "Shubra El-Kheima", "Port Said",
         "Suez", "Luxor", "Asyut", "Mansoura", "Tanta",
         "Ismailia", "Faiyum", "Zagazig", "Damietta", "Aswan",
         "Minya", "Beni Suef", "Qena", "Sohag", "Hurghada",
-
-        "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
-        "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini",
-        "Ethiopia", "Fiji", "Finland", "France", "Gabon",
-        "Gambia", "Georgia", "Germany", "Ghana", "Greece",
-        "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-        "Haiti", "Honduras", "Hungary", "Iceland", "India"
+        "New York", "Los Angeles", "London", "Paris", "Tokyo",
+        "Berlin", "Moscow", "Sydney", "Toronto", "Rome",
+        "Mumbai", "Beijing", "Dubai", "Mexico City", "Bangkok",
+        "Buenos Aires", "Istanbul", "Seoul", "Sao Paulo", "Jakarta",
+        "Cape Town", "Madrid", "Vienna", "Barcelona", "Athens",
+        "Lisbon", "Prague", "Warsaw", "Amsterdam", "Brussels",
+        "Hong Kong", "Shanghai", "Kuala Lumpur", "Singapore", "Lagos",
+        "Dublin", "Copenhagen", "Stockholm", "Helsinki", "Oslo",
+        "Vancouver", "Melbourne", "Zurich", "Geneva", "Edinburgh",
+        "Brisbane", "Kolkata", "Karachi", "Riyadh", "Tel Aviv",
+        "Casablanca", "Manila", "Lima", "Havana", "Kyiv",
+        "Nairobi", "Hanoi", "Vienna", "Budapest", "Munich",
+        "Venice", "Florence", "Salvador", "Rio de Janeiro", "Lyon",
+        "Marseille", "Krakow", "Copenhagen", "Montreal", "Osaka",
+        "Bucharest", "Belgrade", "Sofia", "Ankara", "Tbilisi"
     )
 
     fun fetchAndInsertCity(lat: Double, lon: Double, apiKey: String) {
@@ -52,13 +52,22 @@ class MapViewModel(private val weatherRepository: WeatherRepository) : ViewModel
                 .catch { _ ->
                     _operationStatus.value = "Failure"
                 }
-                .collect { nameResponse ->
+                .collect { locationResponse ->
                     val city = City(
-                        name = nameResponse.name,
-                        coord = Coord(lat = lat, lon = lon)
+                        name = locationResponse.name,
+                        coord = Coord(lat = locationResponse.lat, lon = locationResponse.lon)
                     )
                     weatherRepository.insertCity(city)
                     _operationStatus.value = "Done"
+                }
+        }
+    }
+
+    fun getLocationByName(cityName: String, apiKey: String){
+        viewModelScope.launch {
+            weatherRepository.getLocationByCityName(cityName,apiKey)
+                .collect{ locationResponse ->
+                    _cityStatus.value = City(locationResponse.name,Coord(lon = locationResponse.lon, lat = locationResponse.lat))
                 }
         }
     }

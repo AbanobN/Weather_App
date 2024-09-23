@@ -23,6 +23,12 @@ interface WeatherService {
         @Query("appid") appId: String
     ):List<LocationResponse>
 
+    @GET("geo/1.0/direct")
+    suspend fun getLocationByName(
+        @Query("q") cityName: String,
+        @Query("appid") appId: String
+    ): List<LocationResponse>
+
     @GET("data/2.5/uvi")
     suspend fun getUVIndex(
         @Query("lat") lat: Double,
@@ -36,4 +42,6 @@ interface WeatherService {
         @Query("lon") lon: Double,
         @Query("appid") apiKey: String
     ): ForecastResponse
+
+
 }

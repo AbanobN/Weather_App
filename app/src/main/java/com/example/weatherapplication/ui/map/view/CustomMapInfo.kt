@@ -33,7 +33,6 @@ class CustomMapInfo(
 
         binding.infoWindowIcon.setImageResource(com.example.weatherapplication.R.drawable.ic_favorites)
 
-
         binding.infoWindowIcon.setOnClickListener {
             val position = marker.position
             val lat = position.latitude

@@ -18,6 +18,9 @@ class RemoteDataSource {
     suspend fun getLocationByCoordinates(lat: Double, lon: Double, apiKey: String): List<LocationResponse> {
         return weatherService.getLocationByCoordinates(lat,lon,apiKey)
     }
+    suspend fun getLocationByCityName(cityName: String, apiKey: String): List<LocationResponse>{
+        return  weatherService.getLocationByName(cityName,apiKey)
+    }
 
     suspend fun getUVIndex(lat: Double, lon: Double, apiKey: String): UVResponse {
         return weatherService.getUVIndex(lat, lon, apiKey)

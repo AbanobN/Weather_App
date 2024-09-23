@@ -23,6 +23,7 @@ import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentMapBinding
 import com.example.weatherapplication.ui.map.viewmodel.MapViewModel
 import com.example.weatherapplication.ui.map.viewmodel.MapViewModelFactory
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
@@ -41,9 +42,7 @@ class MapFragment : Fragment() {
     private var marker: Marker? = null
     private lateinit var searchAdapter: SearchViewAdapter
 
-
-    var lat :Double=0.0
-    var lon:Double=0.0
+    private val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,7 +67,21 @@ class MapFragment : Fragment() {
             findNavController().navigate(R.id.action_mapFragment_to_nav_favorites)
         }
 
-        searchAdapter = SearchViewAdapter(arrayListOf())
+        lifecycleScope.launch {
+            mapViewModel.cityStatus.collect{ city ->
+                if(city.name.isNotBlank())
+                {
+                    val p =  GeoPoint(city.coord.lat,city.coord.lon)
+                    binding.map.controller.setCenter(p)
+                    updateMarkerPosition(p)
+                }
+            }
+        }
+
+        searchAdapter = SearchViewAdapter(arrayListOf()){ country ->
+            mapViewModel.getLocationByName(country,apiKey)
+        }
+
         binding.recyclerView.apply {
             adapter = searchAdapter
             layoutManager = LinearLayoutManager(requireContext())
@@ -102,8 +115,6 @@ class MapFragment : Fragment() {
             override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
                 p?.let {
                     updateMarkerPosition(it)
-                    lat=it.latitude
-                    lon=it.longitude
                 }
                 return true
             }

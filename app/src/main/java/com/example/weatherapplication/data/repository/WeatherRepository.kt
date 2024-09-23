@@ -53,6 +53,15 @@ class WeatherRepository(
         }
     }
 
+    fun getLocationByCityName(cityName: String, apiKey: String): Flow<LocationResponse> = flow {
+        try {
+            val locationResponse = remoteDataSource.getLocationByCityName(cityName, apiKey).first()
+            emit(locationResponse)
+        } catch (e: Exception) {
+            throw Exception("Error fetching location by coordinates: ${e.message}")
+        }
+    }
+
 
     fun getAllCities(): Flow<List<City>> {
         return localDataSource.getAllCities()

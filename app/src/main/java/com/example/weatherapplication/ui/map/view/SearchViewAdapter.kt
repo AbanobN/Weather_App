@@ -11,21 +11,19 @@ import com.example.weatherapplication.ui.map.viewmodel.MapViewModel
 class SearchViewAdapter(
     private var countries: ArrayList<String>,
     private val onItemClick: (String) -> Unit,
-    private val mapViewModel: MapViewModel
 ) : RecyclerView.Adapter<SearchViewAdapter.ViewHolder>() {
 
-    @NonNull
-    override fun onCreateViewHolder(@NonNull parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(@NonNull holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val country = countries[position]
         holder.countryTextView.text = country
 
         holder.countryTextView.setOnClickListener{
-
+            onItemClick(country)
         }
     }
 
