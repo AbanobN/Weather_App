@@ -24,4 +24,5 @@
     <string name="back_button_description">Return To Favorites</string>
     <string name="add_to_favorites">Add To Favorites</string>
     <string name="search">Search here</string>
+    <string name="alarm">Add Alarm</string>
 </resources>
