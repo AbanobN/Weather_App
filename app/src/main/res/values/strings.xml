@@ -24,5 +24,8 @@
     <string name="back_button_description">Return To Favorites</string>
     <string name="add_to_favorites">Add To Favorites</string>
     <string name="search">Search here</string>
-    <string name="alarm">Add Alarm</string>
+    <string name="alarm">Weather Alarm</string>
+    <string name="stop">Stop</string>
+    <string name="go_to_weather">Go To App</string>
+    <string name="alert_weather_dialog">Its time to check the weather</string>
 </resources>

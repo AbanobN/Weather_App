@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.alerts.AlertsFragment">
+    tools:context=".ui.alerts.AlertsFragment"
+    android:background="@drawable/background">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_alert"
@@ -13,7 +14,7 @@
         android:layout_margin="16dp"
         android:contentDescription="@string/alarm"
         android:src="@android:drawable/ic_popup_reminder"
-        app:backgroundTint="#331866"
+        app:backgroundTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

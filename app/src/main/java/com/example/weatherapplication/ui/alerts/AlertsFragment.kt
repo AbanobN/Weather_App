@@ -1,40 +1,246 @@
 package com.example.weatherapplication.ui.alerts
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TimePickerDialog
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.example.weatherapplication.databinding.FragmentAlertsBinding
+import com.example.weatherapplication.MainActivity
+import com.example.weatherapplication.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.util.Calendar
 
 class AlertsFragment : Fragment() {
 
-    private var _binding: FragmentAlertsBinding? = null
-
-    private val binding get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val alertsViewModel =
-            ViewModelProvider(this).get(AlertsViewModel::class.java)
-
-        _binding = FragmentAlertsBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
-        val textView: TextView = binding.textAlerts
-        alertsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-        return root
+    private val notificationChannelId = "channel_id"
+    companion object {
+        private const val REQUEST_CODE_OVERLAY_PERMISSION = 1001
+        private const val REQUEST_CODE_NOTIFICATION_PERMISSION = 1002
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_alerts, container, false)
+
+        createNotificationChannel()
+
+        val fabAddAlert: FloatingActionButton = view.findViewById(R.id.fab_add_alert)
+        fabAddAlert.setOnClickListener {
+            showAlertDialog()
+        }
+
+        return view
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                notificationChannelId,
+                "Weather Alerts",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Channel for Weather Alert Notifications"
+            }
+            val notificationManager = requireContext().getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showAlertDialog() {
+        val calendar = Calendar.getInstance()
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, month)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                TimePickerDialog(
+                    requireContext(),
+                    { _, hourOfDay, minute ->
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                        calendar.set(Calendar.MINUTE, minute)
+                        calendar.set(Calendar.SECOND, 0)
+                        calendar.set(Calendar.MILLISECOND, 0)
+
+                        showTypeDialog(calendar)
+                    }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false
+                ).show()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.show()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showTypeDialog(calendar: Calendar) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Select Type")
+
+        val types = arrayOf("Alarm", "Notification")
+        builder.setItems(types) { _, which ->
+            when (which) {
+                0 -> checkAlarmPermission(calendar)
+                1 -> checkNotificationPermission(calendar)
+            }
+        }
+        builder.show()
+    }
+
+    private fun checkAlarmPermission(calendar: Calendar) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestExactAlarmPermission(calendar)
+        } else {
+            setAlarm(calendar)
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private fun checkNotificationPermission(calendar: Calendar) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission(calendar)
+        } else {
+            showNotification(calendar)
+        }
+    }
+
+    private fun setAlarm(calendar: Calendar) {
+        // Ensure the selected time is in the future
+        if (calendar.before(Calendar.getInstance())) {
+            Toast.makeText(requireContext(), "Cannot set alarm for past time!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val alarmTimeInMillis = calendar.timeInMillis
+        Log.d("AlarmTime", "Setting alarm for: $alarmTimeInMillis (${calendar.time})")
+
+        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(requireContext(), AlarmReceiver::class.java)
+
+        // Pass the scheduled time
+        intent.putExtra("SCHEDULED_TIME", alarmTimeInMillis)
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        try {
+            // Set the alarm
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                alarmTimeInMillis,
+                pendingIntent
+            )
+
+            // Check Overlay Permission
+            checkOverlayPermission()
+
+            Toast.makeText(requireContext(), "Alarm Set Successfully!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Failed to set alarm: ${e.message}", Toast.LENGTH_SHORT).show()
+            Log.e("AlarmError", "Error setting alarm", e)
+        }
+    }
+
+
+    private fun checkOverlayPermission() {
+        if (!Settings.canDrawOverlays(requireContext())) {
+            // Request the Overlay permission
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${requireContext().packageName}"))
+            startActivityForResult(intent, REQUEST_CODE_OVERLAY_PERMISSION)
+        }
+    }
+
+
+    private fun showNotification(calendar: Calendar) {
+        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(requireContext(), AlarmReceiver::class.java)
+
+        // Pass notification type and scheduled time to the receiver
+        intent.putExtra("ALERT_TYPE", "NOTIFICATION")
+        intent.putExtra("SCHEDULED_TIME", calendar.timeInMillis)
+
+        // Create a PendingIntent for the AlarmReceiver
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Schedule the alarm to trigger the notification at the selected time
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            pendingIntent
+        )
+
+        Toast.makeText(requireContext(), "Notification Scheduled!", Toast.LENGTH_SHORT).show()
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun requestExactAlarmPermission(calendar: Calendar) {
+        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        if (!alarmManager.canScheduleExactAlarms()) {
+            val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+            startActivity(intent)
+        } else {
+            setAlarm(calendar)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun requestNotificationPermission(calendar: Calendar) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE_NOTIFICATION_PERMISSION)
+        } else {
+            showNotification(calendar)
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_CODE_NOTIFICATION_PERMISSION -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    Toast.makeText(requireContext(), "Notification Permission Granted!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Notification Permission Denied!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }
