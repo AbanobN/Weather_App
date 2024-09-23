@@ -1,12 +1,14 @@
 package com.example.weatherapplication.ui.favorites.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
@@ -20,9 +22,9 @@ import com.example.weatherapplication.ui.adapters.HourlyAdapter
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesDetailsViewModel
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesDetailsViewModelFactory
 import com.example.weatherapplication.utiltes.convertTemperature
-import com.example.weatherapplication.utiltes.convertToLocalTime
 import com.example.weatherapplication.utiltes.convertWindSpeed
 import com.example.weatherapplication.utiltes.getWeatherIconResource
+import kotlinx.coroutines.launch
 
 
 class FavoritesDetailsFragment : Fragment() {
@@ -54,8 +56,8 @@ class FavoritesDetailsFragment : Fragment() {
         val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
         favoritesDetailsViewModel.apply {
-            fetchWeather(lat, lon, apiKey)
-            fetchForecast(lat, lon, apiKey)
+            fetchWeatherData(lat, lon, apiKey)
+            fetchForecastData(lat, lon, apiKey)
         }
 
         return favoritesDetailsBinding.root
@@ -65,16 +67,26 @@ class FavoritesDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerViews()
 
-        favoritesDetailsViewModel.weatherData.observe(viewLifecycleOwner) { weatherResponse ->
-            weatherResponse?.let { updateUI(it) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED){
+                favoritesDetailsViewModel.weatherData.collect { weatherResponse ->
+                    weatherResponse?.let { updateUI(it) }
+                }
+            }
         }
-
-        favoritesDetailsViewModel.days.observe(viewLifecycleOwner) { dailyForecasts ->
-            updateDailyRecycler(dailyForecasts)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED){
+                favoritesDetailsViewModel.days.collect { dailyForecasts ->
+                    updateDailyRecycler(dailyForecasts)
+                }
+            }
         }
-
-        favoritesDetailsViewModel.hours.observe(viewLifecycleOwner) { hourlyForecasts ->
-            updateHourlyRecycler(hourlyForecasts)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED){
+                favoritesDetailsViewModel.hours.collect { hourlyForecasts ->
+                    updateHourlyRecycler(hourlyForecasts)
+                }
+            }
         }
     }
 

@@ -5,7 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
@@ -22,6 +25,7 @@ import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertToLocalTime
 import com.example.weatherapplication.utiltes.convertWindSpeed
 import com.example.weatherapplication.utiltes.getWeatherIconResource
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
@@ -50,8 +54,8 @@ class HomeFragment : Fragment() {
         val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
         homeViewModel.apply {
-            fetchWeather(lat, lon, apiKey)
-            fetchForecast(lat, lon, apiKey)
+            fetchWeatherData(lat, lon, apiKey)
+            fetchForecastData(lat, lon, apiKey)
         }
 
         return fragmentHomeBinding.root
@@ -62,16 +66,27 @@ class HomeFragment : Fragment() {
 
         setupRecyclerViews()
 
-        homeViewModel.weatherData.observe(viewLifecycleOwner) { weatherResponse ->
-            weatherResponse?.let { updateUI(it) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.weatherData.collect { weatherResponse ->
+                    weatherResponse?.let { updateUI(it) }
+                }
+            }
         }
 
-        homeViewModel.days.observe(viewLifecycleOwner) { dailyForecasts ->
-            updateDailyRecycler(dailyForecasts)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED){
+                homeViewModel.days.collect { dailyForecasts ->
+                    updateDailyRecycler(dailyForecasts)
+                }
+            }
         }
-
-        homeViewModel.hours.observe(viewLifecycleOwner) { hourlyForecasts ->
-            updateHourlyRecycler(hourlyForecasts)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED){
+                homeViewModel.hours.collect { hourlyForecasts ->
+                    updateHourlyRecycler(hourlyForecasts)
+                }
+            }
         }
     }
 

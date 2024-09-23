@@ -1,6 +1,5 @@
 package com.example.weatherapplication.data.repository
 
-
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
 import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.pojo.ForecastItem
@@ -8,55 +7,63 @@ import com.example.weatherapplication.data.pojo.LocationResponse
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.utiltes.formatDate
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class WeatherRepository(
     private val remoteDataSource: RemoteDataSource,
     private val localDataSource: LocalDataSource
     ) {
 
-    suspend fun fetchWeather(lat: Double, lon: Double, apiKey: String): WeatherResponse? {
-        val weatherResponse = remoteDataSource.getWeather(lat, lon, apiKey)
-        val uvResponse = remoteDataSource.getUVIndex(lat, lon, apiKey)
-        val locationName = remoteDataSource.getLocationByCoordinates(lat,lon,apiKey)
-
-        return if (weatherResponse.isSuccessful && uvResponse.isSuccessful && locationName.isSuccessful) {
-            weatherResponse.body()?.apply {
-                uV = uvResponse.body()
-                name = locationName.body()?.get(0)!!.name
+    fun fetchWeather(lat: Double, lon: Double, apiKey: String): Flow<WeatherResponse> = flow {
+        try {
+            val weatherResponse = remoteDataSource.getWeather(lat, lon, apiKey)
+            val uvResponse = remoteDataSource.getUVIndex(lat, lon, apiKey)
+            val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon, apiKey).first()
+            weatherResponse.apply {
+                uV = uvResponse
+                name = locationResponse.name
             }
-        } else {
-            null // Handle errors
-        }
-    }
-
-    suspend fun getLocationByCoordinates(lat: Double, lon: Double, apiKey: String): LocationResponse? {
-        val response = remoteDataSource.getLocationByCoordinates(lat, lon, apiKey)
-        return if (response.isSuccessful) {
-            response.body()?.firstOrNull()
-        } else {
-            null // Handle errors
+            emit(weatherResponse)
+        }catch(e: Exception) {
+            throw Exception("Error fetching location: ${e.message}")
         }
     }
 
 
-    suspend fun fetchForecast(lat: Double, lon: Double, apiKey: String): Pair<List<ForecastItem>, List<ForecastItem>>? {
-        val forecastResponse = remoteDataSource.getForecast(lat, lon, apiKey)
-
-        return if (forecastResponse.isSuccessful) {
-            forecastResponse.body()?.let { response ->
-
+    fun fetchForecast(lat: Double, lon: Double, apiKey: String): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
+        try {
+            val forecastResponse = remoteDataSource.getForecast(lat, lon, apiKey)
+            forecastResponse.let { response ->
                 val dailyForecasts = response.list.drop(1).distinctBy { formatDate(it.dt, "EEE") }
-
                 val hourlyForecasts = response.list.take(8)
-
-                Pair(dailyForecasts, hourlyForecasts)
+                emit(Pair(dailyForecasts, hourlyForecasts))
             }
-        } else {
-            null // Handle errors
+        } catch (e: Exception) {
+            throw Exception("Error fetching forecast: ${e.message}")
         }
     }
 
-    suspend fun getAllCities(): List<City> {
+    fun getLocationByCoordinates(lat: Double, lon: Double, apiKey: String): Flow<LocationResponse> = flow {
+        try {
+            val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon, apiKey).first()
+            emit(locationResponse)
+        } catch (e: Exception) {
+            throw Exception("Error fetching location by coordinates: ${e.message}")
+        }
+    }
+
+    fun getLocationByCityName(cityName: String, apiKey: String): Flow<LocationResponse> = flow {
+        try {
+            val locationResponse = remoteDataSource.getLocationByCityName(cityName, apiKey).first()
+            emit(locationResponse)
+        } catch (e: Exception) {
+            throw Exception("Error fetching location by coordinates: ${e.message}")
+        }
+    }
+
+
+    fun getAllCities(): Flow<List<City>> {
         return localDataSource.getAllCities()
     }
 
@@ -67,4 +74,5 @@ class WeatherRepository(
     suspend fun deleteCity(cityName: String) {
         localDataSource.deleteCity(cityName)
     }
+
 }

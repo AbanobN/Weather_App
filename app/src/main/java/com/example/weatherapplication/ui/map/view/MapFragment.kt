@@ -1,23 +1,30 @@
-package com.example.weatherapplication.ui.map
+package com.example.weatherapplication.ui.map.view
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapplication.R
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentMapBinding
-import com.example.weatherapplication.ui.home.viewmodel.HomeViewModel
-import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
+import com.example.weatherapplication.ui.map.viewmodel.MapViewModel
+import com.example.weatherapplication.ui.map.viewmodel.MapViewModelFactory
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
@@ -26,15 +33,16 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
+import java.util.Locale
 
 class MapFragment : Fragment() {
 
     private lateinit var binding: FragmentMapBinding
     private lateinit var mapViewModel: MapViewModel
     private var marker: Marker? = null
+    private lateinit var searchAdapter: SearchViewAdapter
 
-    var lat :Double=0.0
-    var lon:Double=0.0
+    private val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,11 +55,40 @@ class MapFragment : Fragment() {
 
         binding= FragmentMapBinding.inflate(inflater,container,false)
 
+        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.backBtn.setOnClickListener{
+            findNavController().navigate(R.id.action_mapFragment_to_nav_favorites)
+        }
+
+        lifecycleScope.launch {
+            mapViewModel.cityStatus.collect{ city ->
+                if(city.name.isNotBlank())
+                {
+                    val p =  GeoPoint(city.coord.lat,city.coord.lon)
+                    binding.map.controller.setCenter(p)
+                    updateMarkerPosition(p)
+                }
+            }
+        }
+
+        searchAdapter = SearchViewAdapter(arrayListOf()){ country ->
+            mapViewModel.getLocationByName(country,apiKey)
+        }
+
+        binding.recyclerView.apply {
+            adapter = searchAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+        }
+
+        setupSearch()
+        observeSearchResults()
 
         lifecycleScope.launch {
             mapViewModel.operationStatus.collect{ state ->
@@ -78,8 +115,6 @@ class MapFragment : Fragment() {
             override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
                 p?.let {
                     updateMarkerPosition(it)
-                    lat=it.latitude
-                    lon=it.longitude
                 }
                 return true
             }
@@ -114,11 +149,12 @@ class MapFragment : Fragment() {
             }
         }
 
+        binding.recyclerView.visibility = View.GONE
+
         marker?.apply {
             position = location
             showInfoWindow()
         }
-
 
         binding.map.invalidate()
     }
@@ -134,4 +170,38 @@ class MapFragment : Fragment() {
         binding.map.onPause()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (activity as? AppCompatActivity)?.supportActionBar?.show()
+    }
+
+    private fun setupSearch() {
+        binding.searchBar.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString().lowercase(Locale.getDefault()).trim()
+                mapViewModel.emitSearchQuery(query)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private fun observeSearchResults() {
+        lifecycleScope.launch {
+            mapViewModel.searchFlow.collectLatest { query ->
+                val filteredList = mapViewModel.filterList(query).take(10)
+
+                if (filteredList.isNotEmpty()) {
+                    marker?.closeInfoWindow()
+                    binding.recyclerView.visibility = View.VISIBLE
+                } else {
+                    binding.recyclerView.visibility = View.GONE
+                }
+
+                searchAdapter.setCountries(ArrayList(filteredList))
+            }
+        }
+    }
 }

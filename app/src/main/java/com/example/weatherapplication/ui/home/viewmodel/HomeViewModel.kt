@@ -1,47 +1,50 @@
 package com.example.weatherapplication.ui.home.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.repository.WeatherRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class HomeViewModel (private val weatherRepository: WeatherRepository) : ViewModel() {
 
-    private val _weatherData = MutableLiveData<WeatherResponse>()
-    val weatherData: LiveData<WeatherResponse> = _weatherData
+    private val _weatherData = MutableStateFlow<WeatherResponse?>(null)
+    val weatherData: StateFlow<WeatherResponse?> = _weatherData
 
-    private val _days = MutableLiveData<List<ForecastItem>>()
-    val days: LiveData<List<ForecastItem>> = _days
+    private val _days = MutableStateFlow<List<ForecastItem>>(emptyList())
+    val days: StateFlow<List<ForecastItem>> = _days
 
-    private val _hours = MutableLiveData<List<ForecastItem>>()
-    val hours: LiveData<List<ForecastItem>> = _hours
+    private val _hours = MutableStateFlow<List<ForecastItem>>(emptyList())
+    val hours: StateFlow<List<ForecastItem>> = _hours
 
-    fun fetchWeather(lat: Double, lon: Double, apiKey: String) {
+    fun fetchWeatherData(lat: Double, lon: Double, apiKey: String) {
         viewModelScope.launch {
-            try {
-                val combinedResponse = weatherRepository.fetchWeather(lat, lon, apiKey)
-                _weatherData.postValue(combinedResponse!!) // Provide default values if null
-            } catch (e: Exception) {
-                // Handle exceptions
+            weatherRepository.fetchWeather(lat, lon, apiKey)
+                .catch { e ->
+                    Log.d("TAG1", "fetchWeatherData: ${e.message}")
+                }
+                .collect { weatherResponse ->
+                _weatherData.value = weatherResponse
             }
         }
     }
 
-    fun fetchForecast(lat: Double, lon: Double, apiKey: String) {
+
+    fun fetchForecastData(lat: Double, lon: Double, apiKey: String) {
         viewModelScope.launch {
-            try {
-                val result = weatherRepository.fetchForecast(lat, lon, apiKey)
-                result?.let { (dailyForecasts, hourlyForecasts) ->
-                    _days.postValue(dailyForecasts)
-                    _hours.postValue(hourlyForecasts)
+            weatherRepository.fetchForecast(lat, lon, apiKey)
+                .catch { e ->
+                    Log.d("TAG1", "fetchForecastData: ${e.message}")
                 }
-            } catch (e: Exception) {
-                // Handle the exception
-            }
+                .collect { (dailyForecasts, hourlyForecasts) ->
+                    _days.value = dailyForecasts
+                    _hours.value = hourlyForecasts
+                }
         }
     }
 
