@@ -10,7 +10,7 @@ fun convertTemperature(temp: Double, scale: String = "K"): String {
     return when (scale) {
         "C" -> "${(temp - 273.15).toInt()}°C"
         "F" -> "${((temp - 273.15) * 9/5 + 32).toInt()}°F"
-        else -> (temp.toInt()).toString()
+        else -> "${(temp.toInt()).toString()} K"
     }
 }
 

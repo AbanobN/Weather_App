@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
@@ -32,7 +33,8 @@ class FavoritesDetailsFragment : Fragment() {
     private lateinit var favoritesDetailsViewModel: FavoritesDetailsViewModel
     private lateinit var hourlyAdapter: HourlyAdapter
     private lateinit var dailyAdapter: DailyAdapter
-    private val tempUnit = "C"
+    private lateinit var tempUnit: String
+    private lateinit var windSpeed: String
 
     private lateinit var favoritesDetailsBinding: FragmentFavoritesDetailsBinding
 
@@ -44,12 +46,32 @@ class FavoritesDetailsFragment : Fragment() {
         favoritesDetailsBinding = FragmentFavoritesDetailsBinding.inflate(inflater, container, false)
 
         val remoteDataSource = RemoteDataSource()
-        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
+        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()),
+            SharedPreferences(requireContext())
+        )
+
+        tempUnit = localDataSource.getUnit()
 
         favoritesDetailsViewModel = ViewModelProvider(this, FavoritesDetailsViewModelFactory(
             WeatherRepository(remoteDataSource,localDataSource)
         )).get(
         FavoritesDetailsViewModel::class.java)
+
+        favoritesDetailsViewModel.updateSettings()
+
+        lifecycleScope.launch {
+            favoritesDetailsViewModel.tempUnit.collect { unit ->
+                tempUnit = unit
+                // Update UI or do something with tempUnit
+            }
+        }
+
+        lifecycleScope.launch {
+            favoritesDetailsViewModel.windSpeed.collect { speed ->
+                windSpeed = speed
+                // Update UI or do something with windSpeed
+            }
+        }
 
         val lon = arguments?.getDouble("lon") ?: 0.0
         val lat = arguments?.getDouble("lat") ?: 0.0
@@ -99,13 +121,14 @@ class FavoritesDetailsFragment : Fragment() {
 
     private fun updateUI(weatherResponse: WeatherResponse) {
         with(favoritesDetailsBinding) {
+
             txtCity.text = weatherResponse.name
             txtWeather.text = weatherResponse.weather[0].description
             txtWeatherDeg.text = convertTemperature(weatherResponse.main.temp, tempUnit)
             "H:${convertTemperature(weatherResponse.main.temp_max, tempUnit)}  L:${convertTemperature(weatherResponse.main.temp_min, tempUnit)}".also { txtHAndLDeg.text = it }
             "${weatherResponse.main.pressure} hPa".also { txtPressureDeg.text = it }
             "${weatherResponse.main.humidity} %".also { txtHumidtyDeg.text = it }
-            txtWindDeg.text = convertWindSpeed(weatherResponse.wind.speed)
+            txtWindDeg.text = convertWindSpeed(weatherResponse.wind.speed,windSpeed)
             "${weatherResponse.clouds.all}%".also { txtCloudDeg.text = it }
             "${weatherResponse.visibility} m".also { txtVisibiltyDeg.text = it }
             txtUVDeg.text = weatherResponse.uV?.value?.toString() ?: "N/A"

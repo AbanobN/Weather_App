@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapplication.R
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentMapBinding
@@ -49,7 +50,9 @@ class MapFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val remoteDataSource = RemoteDataSource()
-        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
+        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()),
+            SharedPreferences(requireContext())
+        )
         mapViewModel = ViewModelProvider(this, MapViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
             MapViewModel::class.java)
 

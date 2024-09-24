@@ -14,7 +14,7 @@ data class WeatherResponse(
     val timezone: Int,
     val coord: Coord,
     var name: String,
-    var uV : UVResponse? = null
+    var uV : UVResponse? = null,
 )
 
 

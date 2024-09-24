@@ -21,9 +21,16 @@ class FavoritesDetailsViewModel (private val weatherRepository: WeatherRepositor
     private val _hours = MutableStateFlow<List<ForecastItem>>(emptyList())
     val hours: StateFlow<List<ForecastItem>> = _hours
 
+    private val _tempUnit = MutableStateFlow<String>("")
+    val tempUnit: StateFlow<String> get() = _tempUnit
+
+    // MutableStateFlow for windSpeed
+    private val _windSpeed = MutableStateFlow<String>("")
+    val windSpeed: StateFlow<String> get() = _windSpeed
+
     fun fetchWeatherData(lat: Double, lon: Double, apiKey: String) {
         viewModelScope.launch {
-            weatherRepository.fetchWeather(lat, lon, apiKey)
+            weatherRepository.fetchWeather(lat=lat, lon=lon, apiKey=apiKey)
                 .catch { e ->
                     // Handle exception
                 }
@@ -35,7 +42,7 @@ class FavoritesDetailsViewModel (private val weatherRepository: WeatherRepositor
 
     fun fetchForecastData(lat: Double, lon: Double, apiKey: String) {
         viewModelScope.launch {
-            weatherRepository.fetchForecast(lat, lon, apiKey)
+            weatherRepository.fetchForecast(lat=lat, lon=lon, apiKey=apiKey)
                 .catch { e ->
                     // Handle the exception
                 }
@@ -44,6 +51,11 @@ class FavoritesDetailsViewModel (private val weatherRepository: WeatherRepositor
                     _hours.value = hourlyForecasts
                 }
         }
+    }
+
+    fun updateSettings() {
+        _tempUnit.value = weatherRepository.getUnit()
+        _windSpeed.value = weatherRepository.getSpeed()
     }
 
 }

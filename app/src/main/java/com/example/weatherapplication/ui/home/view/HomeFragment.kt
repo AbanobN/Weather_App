@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
@@ -32,7 +33,9 @@ class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var hourlyAdapter: HourlyAdapter
     private lateinit var dailyAdapter: DailyAdapter
-    private val tempUnit = "C"
+
+    private lateinit var tempUnit: String
+    private lateinit var windSpeed: String
 
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
 
@@ -44,7 +47,9 @@ class HomeFragment : Fragment() {
         fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
 
         val remoteDataSource = RemoteDataSource()
-        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
+        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()),
+            SharedPreferences(requireContext())
+        )
 
         homeViewModel = ViewModelProvider(this, HomeViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
             HomeViewModel::class.java)
@@ -65,6 +70,20 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerViews()
+
+        homeViewModel.updateSettings()
+
+        lifecycleScope.launch {
+            homeViewModel.tempUnit.collect { unit ->
+                tempUnit = unit
+            }
+        }
+
+        lifecycleScope.launch {
+            homeViewModel.windSpeed.collect { speed ->
+                windSpeed = speed
+            }
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -107,7 +126,7 @@ class HomeFragment : Fragment() {
             "H:${convertTemperature(weatherResponse.main.temp_max, tempUnit)}  L:${convertTemperature(weatherResponse.main.temp_min, tempUnit)}".also { txtHAndLDeg.text = it }
             "${weatherResponse.main.pressure} hPa".also { txtPressureDeg.text = it }
             "${weatherResponse.main.humidity} %".also { txtHumidtyDeg.text = it }
-            txtWindDeg.text = convertWindSpeed(weatherResponse.wind.speed)
+            txtWindDeg.text = convertWindSpeed(weatherResponse.wind.speed,windSpeed)
             "${weatherResponse.clouds.all}%".also { txtCloudDeg.text = it }
             "${weatherResponse.visibility} m".also { txtVisibiltyDeg.text = it }
             txtUVDeg.text = weatherResponse.uV?.value?.toString() ?: "N/A"

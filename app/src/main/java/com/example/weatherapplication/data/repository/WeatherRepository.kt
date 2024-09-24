@@ -1,6 +1,7 @@
 package com.example.weatherapplication.data.repository
 
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.LocationResponse
@@ -15,11 +16,12 @@ class WeatherRepository(
     private val localDataSource: LocalDataSource
     ) {
 
-    fun fetchWeather(lat: Double, lon: Double, apiKey: String): Flow<WeatherResponse> = flow {
+    fun fetchWeather(lat: Double, lon: Double, lan:String=localDataSource.getLan(), apiKey: String): Flow<WeatherResponse> = flow {
         try {
-            val weatherResponse = remoteDataSource.getWeather(lat, lon, apiKey)
+            val weatherResponse = remoteDataSource.getWeather(lat, lon,lan ,apiKey)
             val uvResponse = remoteDataSource.getUVIndex(lat, lon, apiKey)
             val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon, apiKey).first()
+
             weatherResponse.apply {
                 uV = uvResponse
                 name = locationResponse.name
@@ -31,9 +33,9 @@ class WeatherRepository(
     }
 
 
-    fun fetchForecast(lat: Double, lon: Double, apiKey: String): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
+    fun fetchForecast(lat: Double, lon: Double, lan:String=localDataSource.getLan(), apiKey: String): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
         try {
-            val forecastResponse = remoteDataSource.getForecast(lat, lon, apiKey)
+            val forecastResponse = remoteDataSource.getForecast(lat, lon,lan , apiKey)
             forecastResponse.let { response ->
                 val dailyForecasts = response.list.drop(1).distinctBy { formatDate(it.dt, "EEE") }
                 val hourlyForecasts = response.list.take(8)
@@ -73,6 +75,39 @@ class WeatherRepository(
 
     suspend fun deleteCity(cityName: String) {
         localDataSource.deleteCity(cityName)
+    }
+
+    fun setLan(lan : String){
+        localDataSource.setLan(lan)
+    }
+    fun getLan() : String{
+        return localDataSource.getLan()
+    }
+
+    fun setSpeed(speed : String){
+        localDataSource.setSpeed(speed)
+    }
+    fun getSpeed() : String{
+        return localDataSource.getSpeed()
+    }
+
+    fun setUnit(unit : String){
+        localDataSource.setUnit(unit)
+    }
+    fun getUnit() : String{
+        return localDataSource.getUnit()
+    }
+    fun setLocation(location: String){
+        localDataSource.setLocation(location)
+    }
+    fun getLocation(): String{
+        return localDataSource.getLocation()
+    }
+    fun setNotification(notification: String){
+        localDataSource.setNotification(notification)
+    }
+    fun getNotification(): String{
+        return localDataSource.getNotification()
     }
 
 }

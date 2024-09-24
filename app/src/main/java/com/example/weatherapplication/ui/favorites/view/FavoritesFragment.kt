@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapplication.R
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
@@ -33,7 +34,9 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
     ): View {
 
         val remoteDataSource = RemoteDataSource()
-        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
+        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()),
+            SharedPreferences((requireContext()))
+        )
 
         favoritesViewModel =
             ViewModelProvider(this, FavoritesViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(FavoritesViewModel::class.java)
