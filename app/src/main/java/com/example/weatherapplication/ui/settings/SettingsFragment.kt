@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.example.weatherapplication.MainActivity
 import com.example.weatherapplication.R
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
@@ -57,7 +59,15 @@ class SettingsFragment : Fragment() {
 
         _binding.groupLocation.setOnCheckedChangeListener{ group , checkedId ->
             when(checkedId){
-                R.id.map -> settingsViewModel.saveLocation("map")
+                R.id.map -> {
+                    settingsViewModel.saveLocation("map")
+
+                    val bundle = Bundle().apply{
+                        putString("comeFrom","Setting")
+                    }
+
+                    findNavController().navigate(R.id.action_nav_settings_to_mapFragment,bundle)
+                }
                 else -> settingsViewModel.saveLocation("gps")
             }
 
@@ -65,8 +75,14 @@ class SettingsFragment : Fragment() {
 
         _binding.groupLanguage.setOnCheckedChangeListener{ _ , checkedId ->
             when(checkedId){
-                R.id.arabic -> settingsViewModel.saveLan("ar")
-                else -> settingsViewModel.saveLan("en")
+                R.id.arabic -> {
+                    settingsViewModel.saveLan("ar")
+                    (requireActivity() as MainActivity).checkAndChangLocality()
+                }
+                else -> {
+                    settingsViewModel.saveLan("en")
+                    (requireActivity() as MainActivity).checkAndChangLocality()
+                }
             }
         }
 

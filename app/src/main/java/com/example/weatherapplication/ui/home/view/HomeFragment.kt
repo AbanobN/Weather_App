@@ -1,6 +1,7 @@
 package com.example.weatherapplication.ui.home.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,7 @@ import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertToLocalTime
 import com.example.weatherapplication.utiltes.convertWindSpeed
 import com.example.weatherapplication.utiltes.getWeatherIconResource
+import com.example.weatherapplication.utiltes.parseIntegerIntoArabic
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -36,6 +38,9 @@ class HomeFragment : Fragment() {
 
     private lateinit var tempUnit: String
     private lateinit var windSpeed: String
+
+    private var lat = 31.199004
+    private var lon = 29.894378
 
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
 
@@ -53,14 +58,19 @@ class HomeFragment : Fragment() {
 
         homeViewModel = ViewModelProvider(this, HomeViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
             HomeViewModel::class.java)
+        Log.d("TAG", "onCreateView: ${arguments?.getFloat("lat")?.toDouble()} ")
 
-        val lat = 31.199004
-        val lon = 29.894378
-        val apiKey = "88be804d07441dfca3b574fec6dda8e7"
+        val latArg = arguments?.getFloat("lat")?.toDouble()
+        val lonArg = arguments?.getFloat("lon")?.toDouble()
+
+        lat = if (latArg != null && latArg > 0)  latArg else lat
+        lon = if (lonArg != null && lonArg > 0)  lonArg else lon
+
+        Log.d("TAG", "onCreateView: $lat , $lon")
 
         homeViewModel.apply {
-            fetchWeatherData(lat, lon, apiKey)
-            fetchForecastData(lat, lon, apiKey)
+            fetchWeatherData(lat, lon)
+            fetchForecastData(lat, lon)
         }
 
         return fragmentHomeBinding.root
@@ -122,14 +132,14 @@ class HomeFragment : Fragment() {
             txtCity.text = weatherResponse.name
             txtWeather.text = weatherResponse.weather[0].description
             "${localTime.first} | ${localTime.second}".also { txtDateAndTime.text = it }
-            txtWeatherDeg.text = convertTemperature(weatherResponse.main.temp, tempUnit)
-            "H:${convertTemperature(weatherResponse.main.temp_max, tempUnit)}  L:${convertTemperature(weatherResponse.main.temp_min, tempUnit)}".also { txtHAndLDeg.text = it }
-            "${weatherResponse.main.pressure} hPa".also { txtPressureDeg.text = it }
-            "${weatherResponse.main.humidity} %".also { txtHumidtyDeg.text = it }
-            txtWindDeg.text = convertWindSpeed(weatherResponse.wind.speed,windSpeed)
-            "${weatherResponse.clouds.all}%".also { txtCloudDeg.text = it }
-            "${weatherResponse.visibility} m".also { txtVisibiltyDeg.text = it }
-            txtUVDeg.text = weatherResponse.uV?.value?.toString() ?: "N/A"
+            txtWeatherDeg.text = parseIntegerIntoArabic(convertTemperature(weatherResponse.main.temp, tempUnit),requireContext())
+            "H:${parseIntegerIntoArabic(convertTemperature(weatherResponse.main.temp_max, tempUnit),requireContext())}  L:${parseIntegerIntoArabic( convertTemperature(weatherResponse.main.temp_min, tempUnit),requireContext())}".also { txtHAndLDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.main.pressure).toString(),requireContext())} hPa".also { txtPressureDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.main.humidity).toString(),requireContext())} %".also { txtHumidtyDeg.text = it }
+            txtWindDeg.text = parseIntegerIntoArabic(convertWindSpeed(weatherResponse.wind.speed,windSpeed),requireContext())
+            "${parseIntegerIntoArabic((weatherResponse.clouds.all).toString(),requireContext())}%".also { txtCloudDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.visibility).toString(),requireContext())} m".also { txtVisibiltyDeg.text = it }
+            txtUVDeg.text = parseIntegerIntoArabic(weatherResponse.uV?.value?.toString() ?: "N/A",requireContext())
 
             val weatherIconCode = weatherResponse.weather[0].icon
             val iconResource = getWeatherIconResource(weatherIconCode)

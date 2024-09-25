@@ -1,14 +1,41 @@
 package com.example.weatherapplication.utiltes
 
+import android.content.Context
 import com.example.weatherapplication.R
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
+
+fun parseIntegerIntoArabic(number: String, context: Context): String {
+    val sharedPreferencesHelper = SharedPreferences(context)
+
+    if (sharedPreferencesHelper.getLanguage() == "ar") {
+        val arabicDigitsMap = mapOf(
+            '0' to '٠',
+            '1' to '١',
+            '2' to '٢',
+            '3' to '٣',
+            '4' to '٤',
+            '5' to '٥',
+            '6' to '٦',
+            '7' to '٧',
+            '8' to '٨',
+            '9' to '٩',
+        )
+
+        return number.map { arabicDigitsMap[it] ?: it }.joinToString("")
+    } else {
+        return number
+    }
+}
+
+
 fun convertTemperature(temp: Double, scale: String = "K"): String {
     return when (scale) {
-        "C" -> "${(temp - 273.15).toInt()}°C"
+        "C" -> "${((temp - 273.15).toInt())}°C"
         "F" -> "${((temp - 273.15) * 9/5 + 32).toInt()}°F"
         else -> "${(temp.toInt()).toString()} K"
     }

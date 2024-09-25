@@ -16,11 +16,11 @@ class WeatherRepository(
     private val localDataSource: LocalDataSource
     ) {
 
-    fun fetchWeather(lat: Double, lon: Double, lan:String=localDataSource.getLan(), apiKey: String): Flow<WeatherResponse> = flow {
+    fun fetchWeather(lat: Double, lon: Double, lan:String=localDataSource.getLan()): Flow<WeatherResponse> = flow {
         try {
-            val weatherResponse = remoteDataSource.getWeather(lat, lon,lan ,apiKey)
-            val uvResponse = remoteDataSource.getUVIndex(lat, lon, apiKey)
-            val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon, apiKey).first()
+            val weatherResponse = remoteDataSource.getWeather(lat, lon,lan)
+            val uvResponse = remoteDataSource.getUVIndex(lat, lon)
+            val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon).first()
 
             weatherResponse.apply {
                 uV = uvResponse
@@ -33,9 +33,9 @@ class WeatherRepository(
     }
 
 
-    fun fetchForecast(lat: Double, lon: Double, lan:String=localDataSource.getLan(), apiKey: String): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
+    fun fetchForecast(lat: Double, lon: Double, lan:String=localDataSource.getLan()): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
         try {
-            val forecastResponse = remoteDataSource.getForecast(lat, lon,lan , apiKey)
+            val forecastResponse = remoteDataSource.getForecast(lat, lon,lan)
             forecastResponse.let { response ->
                 val dailyForecasts = response.list.drop(1).distinctBy { formatDate(it.dt, "EEE") }
                 val hourlyForecasts = response.list.take(8)
@@ -46,18 +46,18 @@ class WeatherRepository(
         }
     }
 
-    fun getLocationByCoordinates(lat: Double, lon: Double, apiKey: String): Flow<LocationResponse> = flow {
+    fun getLocationByCoordinates(lat: Double, lon: Double): Flow<LocationResponse> = flow {
         try {
-            val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon, apiKey).first()
+            val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon).first()
             emit(locationResponse)
         } catch (e: Exception) {
             throw Exception("Error fetching location by coordinates: ${e.message}")
         }
     }
 
-    fun getLocationByCityName(cityName: String, apiKey: String): Flow<LocationResponse> = flow {
+    fun getLocationByCityName(cityName: String): Flow<LocationResponse> = flow {
         try {
-            val locationResponse = remoteDataSource.getLocationByCityName(cityName, apiKey).first()
+            val locationResponse = remoteDataSource.getLocationByCityName(cityName).first()
             emit(locationResponse)
         } catch (e: Exception) {
             throw Exception("Error fetching location by coordinates: ${e.message}")

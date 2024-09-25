@@ -46,9 +46,9 @@ class MapViewModel(private val weatherRepository: WeatherRepository) : ViewModel
         "Bucharest", "Belgrade", "Sofia", "Ankara", "Tbilisi"
     )
 
-    fun fetchAndInsertCity(lat: Double, lon: Double, apiKey: String) {
+    fun fetchAndInsertCity(lat: Double, lon: Double) {
         viewModelScope.launch {
-            weatherRepository.getLocationByCoordinates(lat, lon, apiKey)
+            weatherRepository.getLocationByCoordinates(lat, lon)
                 .catch { _ ->
                     _operationStatus.value = "Failure"
                 }
@@ -63,9 +63,9 @@ class MapViewModel(private val weatherRepository: WeatherRepository) : ViewModel
         }
     }
 
-    fun getLocationByName(cityName: String, apiKey: String){
+    fun getLocationByName(cityName: String){
         viewModelScope.launch {
-            weatherRepository.getLocationByCityName(cityName,apiKey)
+            weatherRepository.getLocationByCityName(cityName)
                 .collect{ locationResponse ->
                     _cityStatus.value = City(locationResponse.name,Coord(lon = locationResponse.lon, lat = locationResponse.lat))
                 }

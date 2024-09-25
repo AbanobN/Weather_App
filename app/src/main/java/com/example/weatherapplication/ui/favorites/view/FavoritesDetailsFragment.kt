@@ -25,6 +25,7 @@ import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesDetailsVie
 import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertWindSpeed
 import com.example.weatherapplication.utiltes.getWeatherIconResource
+import com.example.weatherapplication.utiltes.parseIntegerIntoArabic
 import kotlinx.coroutines.launch
 
 
@@ -62,24 +63,21 @@ class FavoritesDetailsFragment : Fragment() {
         lifecycleScope.launch {
             favoritesDetailsViewModel.tempUnit.collect { unit ->
                 tempUnit = unit
-                // Update UI or do something with tempUnit
             }
         }
 
         lifecycleScope.launch {
             favoritesDetailsViewModel.windSpeed.collect { speed ->
                 windSpeed = speed
-                // Update UI or do something with windSpeed
             }
         }
 
         val lon = arguments?.getDouble("lon") ?: 0.0
         val lat = arguments?.getDouble("lat") ?: 0.0
-        val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
         favoritesDetailsViewModel.apply {
-            fetchWeatherData(lat, lon, apiKey)
-            fetchForecastData(lat, lon, apiKey)
+            fetchWeatherData(lat, lon)
+            fetchForecastData(lat, lon)
         }
 
         return favoritesDetailsBinding.root
@@ -124,14 +122,14 @@ class FavoritesDetailsFragment : Fragment() {
 
             txtCity.text = weatherResponse.name
             txtWeather.text = weatherResponse.weather[0].description
-            txtWeatherDeg.text = convertTemperature(weatherResponse.main.temp, tempUnit)
-            "H:${convertTemperature(weatherResponse.main.temp_max, tempUnit)}  L:${convertTemperature(weatherResponse.main.temp_min, tempUnit)}".also { txtHAndLDeg.text = it }
-            "${weatherResponse.main.pressure} hPa".also { txtPressureDeg.text = it }
-            "${weatherResponse.main.humidity} %".also { txtHumidtyDeg.text = it }
-            txtWindDeg.text = convertWindSpeed(weatherResponse.wind.speed,windSpeed)
-            "${weatherResponse.clouds.all}%".also { txtCloudDeg.text = it }
-            "${weatherResponse.visibility} m".also { txtVisibiltyDeg.text = it }
-            txtUVDeg.text = weatherResponse.uV?.value?.toString() ?: "N/A"
+            txtWeatherDeg.text = parseIntegerIntoArabic(convertTemperature(weatherResponse.main.temp, tempUnit),requireContext())
+            "H:${parseIntegerIntoArabic(convertTemperature(weatherResponse.main.temp_max, tempUnit),requireContext())}  L:${parseIntegerIntoArabic( convertTemperature(weatherResponse.main.temp_min, tempUnit),requireContext())}".also { txtHAndLDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.main.pressure).toString(),requireContext())} hPa".also { txtPressureDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.main.humidity).toString(),requireContext())} %".also { txtHumidtyDeg.text = it }
+            txtWindDeg.text = parseIntegerIntoArabic(convertWindSpeed(weatherResponse.wind.speed,windSpeed),requireContext())
+            "${parseIntegerIntoArabic((weatherResponse.clouds.all).toString(),requireContext())}%".also { txtCloudDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.visibility).toString(),requireContext())} m".also { txtVisibiltyDeg.text = it }
+            txtUVDeg.text = parseIntegerIntoArabic(weatherResponse.uV?.value?.toString() ?: "N/A",requireContext())
 
             val weatherIconCode = weatherResponse.weather[0].icon
             val iconResource = getWeatherIconResource(weatherIconCode)

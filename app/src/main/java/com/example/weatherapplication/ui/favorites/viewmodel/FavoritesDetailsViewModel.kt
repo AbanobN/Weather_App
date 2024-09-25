@@ -28,9 +28,9 @@ class FavoritesDetailsViewModel (private val weatherRepository: WeatherRepositor
     private val _windSpeed = MutableStateFlow<String>("")
     val windSpeed: StateFlow<String> get() = _windSpeed
 
-    fun fetchWeatherData(lat: Double, lon: Double, apiKey: String) {
+    fun fetchWeatherData(lat: Double, lon: Double) {
         viewModelScope.launch {
-            weatherRepository.fetchWeather(lat=lat, lon=lon, apiKey=apiKey)
+            weatherRepository.fetchWeather(lat=lat, lon=lon)
                 .catch { e ->
                     // Handle exception
                 }
@@ -40,9 +40,9 @@ class FavoritesDetailsViewModel (private val weatherRepository: WeatherRepositor
         }
     }
 
-    fun fetchForecastData(lat: Double, lon: Double, apiKey: String) {
+    fun fetchForecastData(lat: Double, lon: Double) {
         viewModelScope.launch {
-            weatherRepository.fetchForecast(lat=lat, lon=lon, apiKey=apiKey)
+            weatherRepository.fetchForecast(lat=lat, lon=lon)
                 .catch { e ->
                     // Handle the exception
                 }

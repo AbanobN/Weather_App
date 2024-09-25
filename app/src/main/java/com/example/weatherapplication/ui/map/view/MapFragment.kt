@@ -3,6 +3,7 @@ package com.example.weatherapplication.ui.map.view
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapplication.R
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
@@ -24,7 +24,6 @@ import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentMapBinding
 import com.example.weatherapplication.ui.map.viewmodel.MapViewModel
 import com.example.weatherapplication.ui.map.viewmodel.MapViewModelFactory
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
@@ -42,6 +41,7 @@ class MapFragment : Fragment() {
     private lateinit var mapViewModel: MapViewModel
     private var marker: Marker? = null
     private lateinit var searchAdapter: SearchViewAdapter
+    private lateinit var comeFrom: String
 
     private val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
@@ -59,6 +59,8 @@ class MapFragment : Fragment() {
         binding= FragmentMapBinding.inflate(inflater,container,false)
 
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
+
+        comeFrom = arguments?.getString("comeFrom").toString()
 
         return binding.root
     }
@@ -82,7 +84,7 @@ class MapFragment : Fragment() {
         }
 
         searchAdapter = SearchViewAdapter(arrayListOf()){ country ->
-            mapViewModel.getLocationByName(country,apiKey)
+            mapViewModel.getLocationByName(country)
         }
 
         binding.recyclerView.apply {
@@ -140,7 +142,7 @@ class MapFragment : Fragment() {
                 val customMarkerIcon = ContextCompat.getDrawable(requireContext(), R.drawable.map_marker)
                 icon = customMarkerIcon
 
-                val customInfoWindow = CustomMapInfo(binding.map, requireContext(), mapViewModel,lifecycleScope)
+                val customInfoWindow = CustomMapInfo(binding.map, requireContext(), mapViewModel,lifecycleScope,comeFrom,findNavController())
                 infoWindow = customInfoWindow
 
                 setOnMarkerClickListener { m, _ ->

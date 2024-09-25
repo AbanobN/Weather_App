@@ -68,7 +68,11 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
         }
 
         fragmentFavoritesBinding.openMapBtn.setOnClickListener{
-            findNavController().navigate(R.id.action_nav_favorites_to_mapFragment)
+            val bundle = Bundle().apply{
+                putString("comeFrom","Favorites")
+            }
+
+            findNavController().navigate(R.id.action_nav_favorites_to_mapFragment,bundle)
         }
     }
 
