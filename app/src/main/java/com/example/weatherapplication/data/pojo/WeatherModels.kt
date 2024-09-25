@@ -67,6 +67,17 @@ data class UVResponse(
     val value: Float
 )
 
+@Entity(tableName = "alarm_table")
+data class AlarmData(
+    @PrimaryKey val requestCode :Int,
+    val time:Long
+)
+
+data class Location(
+    var latitude : Double,
+    var longitude : Double
+)
+
 
 
 

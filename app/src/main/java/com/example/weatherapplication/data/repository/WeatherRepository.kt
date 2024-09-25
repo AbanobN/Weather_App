@@ -2,6 +2,7 @@ package com.example.weatherapplication.data.repository
 
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
 import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
+import com.example.weatherapplication.data.pojo.AlarmData
 import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.LocationResponse
@@ -110,4 +111,19 @@ class WeatherRepository(
         return localDataSource.getNotification()
     }
 
+    fun getAllLocalAlarm(): Flow<List<AlarmData>> {
+        return localDataSource.getAllLocalAlarm()
+    }
+
+    suspend fun insertAlarmData(alarmData: AlarmData) {
+        localDataSource.insertAlarmData(alarmData)
+    }
+
+    suspend fun deletAlarm(alarmData: AlarmData) {
+        localDataSource.deletAlarm(alarmData)
+    }
+
+    suspend fun deleteOldAlarms(currentTimeMillis: Long) {
+        localDataSource.deleteOldAlarms(currentTimeMillis)
+    }
 }
