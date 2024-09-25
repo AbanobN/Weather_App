@@ -9,8 +9,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,6 +38,8 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        checkAndChangLocality()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -47,4 +51,30 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
+
+
+    //localization
+    fun checkAndChangLocality()
+    {
+        val languageCode = SharedPreferences(this).getLanguage()//ar
+        val locale = resources.configuration.locales[0]
+
+        if(locale.language != languageCode)
+        {
+
+            val newLocale = Locale(languageCode ?: "en")
+            Locale.setDefault(newLocale)
+
+            val config = resources.configuration
+
+            config.setLocale(newLocale)
+            config.setLayoutDirection(newLocale)
+
+            resources.updateConfiguration(config,resources.displayMetrics)
+
+            recreate()
+
+        }
+    }
+
 }

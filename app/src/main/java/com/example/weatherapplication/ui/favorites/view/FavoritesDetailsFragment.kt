@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
@@ -24,6 +25,7 @@ import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesDetailsVie
 import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertWindSpeed
 import com.example.weatherapplication.utiltes.getWeatherIconResource
+import com.example.weatherapplication.utiltes.parseIntegerIntoArabic
 import kotlinx.coroutines.launch
 
 
@@ -32,7 +34,8 @@ class FavoritesDetailsFragment : Fragment() {
     private lateinit var favoritesDetailsViewModel: FavoritesDetailsViewModel
     private lateinit var hourlyAdapter: HourlyAdapter
     private lateinit var dailyAdapter: DailyAdapter
-    private val tempUnit = "C"
+    private lateinit var tempUnit: String
+    private lateinit var windSpeed: String
 
     private lateinit var favoritesDetailsBinding: FragmentFavoritesDetailsBinding
 
@@ -44,20 +47,37 @@ class FavoritesDetailsFragment : Fragment() {
         favoritesDetailsBinding = FragmentFavoritesDetailsBinding.inflate(inflater, container, false)
 
         val remoteDataSource = RemoteDataSource()
-        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()))
+        val localDataSource = LocalDataSource(AppDatabase.getDatabase(requireContext()),
+            SharedPreferences(requireContext())
+        )
+
+        tempUnit = localDataSource.getUnit()
 
         favoritesDetailsViewModel = ViewModelProvider(this, FavoritesDetailsViewModelFactory(
             WeatherRepository(remoteDataSource,localDataSource)
         )).get(
         FavoritesDetailsViewModel::class.java)
 
+        favoritesDetailsViewModel.updateSettings()
+
+        lifecycleScope.launch {
+            favoritesDetailsViewModel.tempUnit.collect { unit ->
+                tempUnit = unit
+            }
+        }
+
+        lifecycleScope.launch {
+            favoritesDetailsViewModel.windSpeed.collect { speed ->
+                windSpeed = speed
+            }
+        }
+
         val lon = arguments?.getDouble("lon") ?: 0.0
         val lat = arguments?.getDouble("lat") ?: 0.0
-        val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
         favoritesDetailsViewModel.apply {
-            fetchWeatherData(lat, lon, apiKey)
-            fetchForecastData(lat, lon, apiKey)
+            fetchWeatherData(lat, lon)
+            fetchForecastData(lat, lon)
         }
 
         return favoritesDetailsBinding.root
@@ -99,16 +119,17 @@ class FavoritesDetailsFragment : Fragment() {
 
     private fun updateUI(weatherResponse: WeatherResponse) {
         with(favoritesDetailsBinding) {
+
             txtCity.text = weatherResponse.name
             txtWeather.text = weatherResponse.weather[0].description
-            txtWeatherDeg.text = convertTemperature(weatherResponse.main.temp, tempUnit)
-            "H:${convertTemperature(weatherResponse.main.temp_max, tempUnit)}  L:${convertTemperature(weatherResponse.main.temp_min, tempUnit)}".also { txtHAndLDeg.text = it }
-            "${weatherResponse.main.pressure} hPa".also { txtPressureDeg.text = it }
-            "${weatherResponse.main.humidity} %".also { txtHumidtyDeg.text = it }
-            txtWindDeg.text = convertWindSpeed(weatherResponse.wind.speed)
-            "${weatherResponse.clouds.all}%".also { txtCloudDeg.text = it }
-            "${weatherResponse.visibility} m".also { txtVisibiltyDeg.text = it }
-            txtUVDeg.text = weatherResponse.uV?.value?.toString() ?: "N/A"
+            txtWeatherDeg.text = parseIntegerIntoArabic(convertTemperature(weatherResponse.main.temp, tempUnit),requireContext())
+            "H:${parseIntegerIntoArabic(convertTemperature(weatherResponse.main.temp_max, tempUnit),requireContext())}  L:${parseIntegerIntoArabic( convertTemperature(weatherResponse.main.temp_min, tempUnit),requireContext())}".also { txtHAndLDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.main.pressure).toString(),requireContext())} hPa".also { txtPressureDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.main.humidity).toString(),requireContext())} %".also { txtHumidtyDeg.text = it }
+            txtWindDeg.text = parseIntegerIntoArabic(convertWindSpeed(weatherResponse.wind.speed,windSpeed),requireContext())
+            "${parseIntegerIntoArabic((weatherResponse.clouds.all).toString(),requireContext())}%".also { txtCloudDeg.text = it }
+            "${parseIntegerIntoArabic((weatherResponse.visibility).toString(),requireContext())} m".also { txtVisibiltyDeg.text = it }
+            txtUVDeg.text = parseIntegerIntoArabic(weatherResponse.uV?.value?.toString() ?: "N/A",requireContext())
 
             val weatherIconCode = weatherResponse.weather[0].icon
             val iconResource = getWeatherIconResource(weatherIconCode)

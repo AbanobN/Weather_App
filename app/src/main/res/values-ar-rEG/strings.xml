@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">تطبيق الطقس</string>
+    <string name="navigation_drawer_open">فتح درج التنقل</string>
+    <string name="navigation_drawer_close">إغلاق درج التنقل</string>
+    <string name="nav_header_title">تطبيق الطقس</string>
+    <string name="nav_header_desc">رأس التنقل</string>
+    <string name="action_settings">الإعدادات</string>
+
+    <string name="menu_home">الرئيسية</string>
+    <string name="menu_favorites">المفضلات</string>
+    <string name="menu_alerts">التنبيهات</string>
+    <string name="menu_settings">الإعدادات</string>
+    <string name="map">الخريطة</string>
+
+    <string name="tomorrow">غدا</string>
+    <string name="today">الـ 24 ساعة القادمة</string>
+    <string name="nextDays">الأيام الخمسة القادمة</string>
+    <string name="pressure">الضغط</string>
+    <string name="humidty">الرطوبة</string>
+    <string name="wind">الرياح</string>
+    <string name="cloud">السحب</string>
+    <string name="ultra_violet">الأشعة فوق البنفسجية</string>
+    <string name="visibilty">الرؤية</string>
+    <string name="cancel">إلغاء</string>
+    <string name="nofavorites">لا توجد مفضلات</string>
+    <string name="noalerts">لا توجد تنبيهات</string>
+    <string name="back_button_description">العودة إلى المفضلات</string>
+    <string name="add_to_favorites">إضافة إلى المفضلات</string>
+    <string name="search">ابحث هنا</string>
+    <string name="alarm">إنذار الطقس</string>
+    <string name="stop">إيقاف</string>
+    <string name="go_to_weather">الذهاب إلى التطبيق</string>
+    <string name="alert_weather_dialog">حان الوقت للتحقق من الطقس</string>
+    <string name="up_location">تحديث موقعك</string>
+
+    <string name="location">الموقع</string>
+    <string name="gps">GPS</string>
+
+    <string name="language">اللغة</string>
+    <string name="english">الإنجليزية</string>
+    <string name="arabic">العربية</string>
+
+    <string name="temperature">درجة الحرارة</string>
+    <string name="celsius">سيلسيوس</string>
+    <string name="kelvin">كلفن</string>
+    <string name="fahrenheit">فهرنهايت</string>
+
+    <string name="windspeed">سرعة الرياح</string>
+    <string name="mps">متر/ثانية</string>
+    <string name="mph">ميل/ساعة</string>
+
+    <string name="notifications">الإشعارات</string>
+    <string name="enable">تفعيل</string>
+    <string name="disable">تعطيل</string>
+</resources>

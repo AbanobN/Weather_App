@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -26,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.example.weatherapplication.MainActivity
 import com.example.weatherapplication.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Calendar
@@ -34,6 +32,12 @@ import java.util.Calendar
 class AlertsFragment : Fragment() {
 
     private val notificationChannelId = "channel_id"
+
+    private val sharedPreferencesName = "alert_preferences"
+    private val requestCodeKey = "request_code"
+    var requestCode: Int = 0
+
+
     companion object {
         private const val REQUEST_CODE_OVERLAY_PERMISSION = 1001
         private const val REQUEST_CODE_NOTIFICATION_PERMISSION = 1002
@@ -45,6 +49,8 @@ class AlertsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_alerts, container, false)
+
+        requestCode = getRequestCodeFromPreferences()
 
         createNotificationChannel()
 
@@ -107,6 +113,7 @@ class AlertsFragment : Fragment() {
 
         val types = arrayOf("Alarm", "Notification")
         builder.setItems(types) { _, which ->
+            updateRequestCode()
             when (which) {
                 0 -> checkAlarmPermission(calendar)
                 1 -> checkNotificationPermission(calendar)
@@ -146,11 +153,12 @@ class AlertsFragment : Fragment() {
         val intent = Intent(requireContext(), AlarmReceiver::class.java)
 
         // Pass the scheduled time
-        intent.putExtra("SCHEDULED_TIME", alarmTimeInMillis)
+       // intent.putExtra("SCHEDULED_TIME", alarmTimeInMillis)
+        intent.action= "ALARM"
 
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
-            0,
+            getRequestCodeFromPreferences(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -188,13 +196,14 @@ class AlertsFragment : Fragment() {
         val intent = Intent(requireContext(), AlarmReceiver::class.java)
 
         // Pass notification type and scheduled time to the receiver
-        intent.putExtra("ALERT_TYPE", "NOTIFICATION")
-        intent.putExtra("SCHEDULED_TIME", calendar.timeInMillis)
+//        intent.putExtra("ALERT_TYPE", "NOTIFICATION")
+//        intent.putExtra("SCHEDULED_TIME", calendar.timeInMillis)
+        intent.action = "NOTIFICATION"
 
         // Create a PendingIntent for the AlarmReceiver
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
-            0,
+            getRequestCodeFromPreferences(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -241,6 +250,24 @@ class AlertsFragment : Fragment() {
                     Toast.makeText(requireContext(), "Notification Permission Denied!", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+    }
+
+    private fun getRequestCodeFromPreferences(): Int {
+        val sharedPrefs = requireActivity().getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+        return sharedPrefs.getInt(requestCodeKey, 0) // Default value is 0
+    }
+
+    // Example function where you can modify the requestCode and save it
+    private fun updateRequestCode() {
+
+        requestCode++
+
+        val sharedPrefs =
+            requireActivity().getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+        with(sharedPrefs.edit()) {
+            putInt(requestCodeKey, requestCode)
+            apply() // Commit changes asynchronously
         }
     }
 }
