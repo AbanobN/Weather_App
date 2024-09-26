@@ -22,6 +22,10 @@
     <string name="cloud">السحب</string>
     <string name="ultra_violet">الأشعة فوق البنفسجية</string>
     <string name="visibilty">الرؤية</string>
+
+    <string name="alarm_icon">رمز التنبيه</string>
+    <string name="time">وقت التنبيه</string>
+
     <string name="cancel">إلغاء</string>
     <string name="nofavorites">لا توجد مفضلات</string>
     <string name="noalerts">لا توجد تنبيهات</string>

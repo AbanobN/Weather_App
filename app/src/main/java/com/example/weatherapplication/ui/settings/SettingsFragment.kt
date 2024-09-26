@@ -68,7 +68,16 @@ class SettingsFragment : Fragment() {
 
                     findNavController().navigate(R.id.action_nav_settings_to_mapFragment,bundle)
                 }
-                else -> settingsViewModel.saveLocation("gps")
+                else -> {
+                    settingsViewModel.saveLocation("gps")
+
+                    val bundle = Bundle().apply {
+                        putFloat("lat", 0.0f)
+                        putFloat("lon", 0.0f)
+                    }
+
+                    findNavController().navigate(R.id.action_nav_settings_to_nav_home,bundle)
+                }
             }
 
         }

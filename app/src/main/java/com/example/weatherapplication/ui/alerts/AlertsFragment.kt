@@ -25,8 +25,19 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.Visibility
 import com.example.weatherapplication.R
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.weatherapplication.data.localdatasource.database.AppDatabase
+import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
+import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
+import com.example.weatherapplication.data.pojo.AlarmData
+import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
+import com.example.weatherapplication.data.repository.WeatherRepository
+import com.example.weatherapplication.databinding.FragmentAlertsBinding
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class AlertsFragment : Fragment() {
@@ -36,6 +47,9 @@ class AlertsFragment : Fragment() {
     private val sharedPreferencesName = "alert_preferences"
     private val requestCodeKey = "request_code"
     var requestCode: Int = 0
+    private lateinit var alertsViewModel: AlertsViewModel
+    private lateinit var myAdapter : AlarmAdapter
+    private lateinit var binding : FragmentAlertsBinding
 
 
     companion object {
@@ -47,19 +61,57 @@ class AlertsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_alerts, container, false)
+    ): View {
+        binding = FragmentAlertsBinding.inflate(inflater, container, false)
 
         requestCode = getRequestCodeFromPreferences()
 
+
         createNotificationChannel()
 
-        val fabAddAlert: FloatingActionButton = view.findViewById(R.id.fab_add_alert)
-        fabAddAlert.setOnClickListener {
+
+        binding.fabAddAlert.setOnClickListener {
             showAlertDialog()
         }
 
-        return view
+        val remoteDataSource = RemoteDataSource()
+        val localDataSource = LocalDataSource(
+            AppDatabase.getDatabase(requireContext()),
+            SharedPreferences(requireContext())
+        )
+
+        alertsViewModel = ViewModelProvider(this, AlertsViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
+            AlertsViewModel::class.java)
+
+        alertsViewModel.getAlarms()
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        myAdapter = AlarmAdapter()
+        binding.recViewAlerts.layoutManager= LinearLayoutManager(context)
+        binding.recViewAlerts.adapter=myAdapter
+
+        alertsViewModel.deleteOldAlarms(System.currentTimeMillis())
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            alertsViewModel.alarms.collect{
+                if(it.isEmpty())
+                {
+                    binding.noAlerts.visibility = View.VISIBLE
+                    binding.recViewAlerts.visibility = View.GONE
+                }
+                else{
+                    binding.noAlerts.visibility = View.GONE
+                    binding.recViewAlerts.visibility = View.VISIBLE
+                    myAdapter.submitList(it)
+                }
+
+            }
+        }
     }
 
     private fun createNotificationChannel() {
@@ -140,25 +192,22 @@ class AlertsFragment : Fragment() {
     }
 
     private fun setAlarm(calendar: Calendar) {
-        // Ensure the selected time is in the future
         if (calendar.before(Calendar.getInstance())) {
             Toast.makeText(requireContext(), "Cannot set alarm for past time!", Toast.LENGTH_SHORT).show()
             return
         }
-
+        val alarmRequest =getRequestCodeFromPreferences()
         val alarmTimeInMillis = calendar.timeInMillis
         Log.d("AlarmTime", "Setting alarm for: $alarmTimeInMillis (${calendar.time})")
 
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(requireContext(), AlarmReceiver::class.java)
 
-        // Pass the scheduled time
-       // intent.putExtra("SCHEDULED_TIME", alarmTimeInMillis)
         intent.action= "ALARM"
 
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
-            getRequestCodeFromPreferences(),
+            alarmRequest,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -179,6 +228,7 @@ class AlertsFragment : Fragment() {
             Toast.makeText(requireContext(), "Failed to set alarm: ${e.message}", Toast.LENGTH_SHORT).show()
             Log.e("AlarmError", "Error setting alarm", e)
         }
+        alertsViewModel.insertAlarm(AlarmData(alarmRequest,alarmTimeInMillis))
     }
 
 
@@ -196,8 +246,6 @@ class AlertsFragment : Fragment() {
         val intent = Intent(requireContext(), AlarmReceiver::class.java)
 
         // Pass notification type and scheduled time to the receiver
-//        intent.putExtra("ALERT_TYPE", "NOTIFICATION")
-//        intent.putExtra("SCHEDULED_TIME", calendar.timeInMillis)
         intent.action = "NOTIFICATION"
 
         // Create a PendingIntent for the AlarmReceiver
@@ -267,7 +315,7 @@ class AlertsFragment : Fragment() {
             requireActivity().getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
         with(sharedPrefs.edit()) {
             putInt(requestCodeKey, requestCode)
-            apply() // Commit changes asynchronously
+            apply()
         }
     }
 }

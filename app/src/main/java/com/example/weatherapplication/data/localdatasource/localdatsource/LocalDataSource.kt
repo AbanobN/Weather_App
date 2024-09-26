@@ -2,11 +2,14 @@ package com.example.weatherapplication.data.localdatasource.localdatsource
 
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
+import com.example.weatherapplication.data.pojo.AlarmData
 import com.example.weatherapplication.data.pojo.City
 import kotlinx.coroutines.flow.Flow
 
-class LocalDataSource(private val database: AppDatabase , private val sharedPreferences: SharedPreferences) {
+class LocalDataSource(private val database: AppDatabase, private val sharedPreferences: SharedPreferences) {
     private val cityDao = database.cityDao()
+    private val alarmDao = database.alarmDao()
+
 
     fun getAllCities(): Flow<List<City>> {
         return cityDao.getAllCities()
@@ -53,5 +56,21 @@ class LocalDataSource(private val database: AppDatabase , private val sharedPref
     }
     fun getNotification(): String{
         return sharedPreferences.getNotification()
+    }
+
+    fun getAllLocalAlarm(): Flow<List<AlarmData>> {
+        return alarmDao.getAllLocalAlarm()
+    }
+
+    suspend fun insertAlarmData(alarmData: AlarmData) {
+        alarmDao.insertAlarm(alarmData)
+    }
+
+    suspend fun deletAlarm(alarmData: AlarmData) {
+        alarmDao.deleteAlarm(alarmData)
+    }
+
+    suspend fun deleteOldAlarms(currentTimeMillis: Long) {
+        alarmDao.deleteOldAlarms(currentTimeMillis)
     }
 }
