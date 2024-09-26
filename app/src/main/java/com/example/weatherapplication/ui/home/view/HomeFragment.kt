@@ -42,6 +42,9 @@ import com.google.android.gms.location.Priority
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import android.Manifest
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 class HomeFragment : Fragment() {
 
@@ -52,13 +55,6 @@ class HomeFragment : Fragment() {
     private lateinit var tempUnit: String
     private lateinit var windSpeed: String
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationRequest: LocationRequest
-    private lateinit var locationCallback: LocationCallback
-
-//    private var lat = 0.0
-//    private var lon = 0.0
-
     private var _location = MutableStateFlow<CustomLocation>(CustomLocation(0.0, 0.0))
 
     private lateinit var fragmentHomeBinding: FragmentHomeBinding
@@ -67,6 +63,18 @@ class HomeFragment : Fragment() {
         LocationServices.getFusedLocationProviderClient(requireContext())
     }
 
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+            // Permission granted, call getCurrentLocation
+            getCurrentLocation()
+        } else {
+            // Permission denied, handle the case
+            Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,23 +83,6 @@ class HomeFragment : Fragment() {
     ): View {
         fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Request permission if not granted
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                100
-            )
-        }
-
-        getCurrentLocation()
 
         val remoteDataSource = RemoteDataSource()
         val localDataSource = LocalDataSource(
@@ -109,10 +100,16 @@ class HomeFragment : Fragment() {
         val latArg = arguments?.getFloat("lat")?.toDouble()
         val lonArg = arguments?.getFloat("lon")?.toDouble()
 
-        _location.value.latitude =
-            if (latArg != null && latArg > 0) latArg else _location.value.latitude
-        _location.value.longitude =
-            if (lonArg != null && lonArg > 0) lonArg else _location.value.longitude
+
+        if(latArg != null && latArg > 0 && lonArg != null && lonArg > 0)
+        {
+            _location.value.latitude = latArg
+            _location.value.longitude = lonArg
+        }
+        else{
+            checkLocationPermission()
+        }
+
 
 
         lifecycleScope.launch {
@@ -250,16 +247,39 @@ class HomeFragment : Fragment() {
         fragmentHomeBinding.recViewDays.adapter = dailyAdapter
     }
 
-    // get location
+
+    // Function to check permissions and request location
+    private fun checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request location permissions
+            locationPermissionRequest.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        } else {
+            // Permission already granted, get location
+            getCurrentLocation()
+        }
+    }
+
     @SuppressLint("MissingPermission")
-    fun getCurrentLocation() {
+    private fun getCurrentLocation() {
         fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
             val androidLocation = task.result
             if (androidLocation != null) {
                 // Convert Android Location to Custom Location
-                val customLocation =
-                    CustomLocation(androidLocation.latitude, androidLocation.longitude)
-                // Update the StateFlow with the custom location
+                val customLocation = CustomLocation(androidLocation.latitude, androidLocation.longitude)
+                // Update the StateFlow or LiveData with the custom location
                 _location.value = customLocation
             } else {
                 // Create a proper LocationRequest
@@ -276,7 +296,7 @@ class HomeFragment : Fragment() {
                             androidLastLocation?.let {
                                 // Convert Android Location to Custom Location
                                 val customLocation = CustomLocation(it.latitude, it.longitude)
-                                // Update the StateFlow with the custom location
+                                // Update the StateFlow or LiveData with the custom location
                                 _location.value = customLocation
                             }
                             fusedLocationProviderClient.removeLocationUpdates(this)
@@ -288,26 +308,4 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-            )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 100 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startLocationUpdates()
-        }
-    }
 }
