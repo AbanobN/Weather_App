@@ -31,7 +31,7 @@ class HomeViewModel (private val weatherRepository: WeatherRepository) : ViewMod
 
     fun fetchWeatherData(lat: Double, lon: Double) {
         viewModelScope.launch {
-            weatherRepository.fetchWeather(lat=lat, lon=lon)
+            weatherRepository.fetchWeatherAndUpdate(lat=lat, lon=lon, isNetwork = true)
                 .catch { e ->
                     Log.d("TAG1", "fetchWeatherData: ${e.message}")
                 }
@@ -44,7 +44,7 @@ class HomeViewModel (private val weatherRepository: WeatherRepository) : ViewMod
 
     fun fetchForecastData(lat: Double, lon: Double) {
         viewModelScope.launch {
-            weatherRepository.fetchForecast(lat=lat, lon=lon)
+            weatherRepository.fetchForecastAndUpdate(lat=lat, lon=lon, isNetwork = true)
                 .catch { e ->
                     Log.d("TAG1", "fetchForecastData: ${e.message}")
                 }

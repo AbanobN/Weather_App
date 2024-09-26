@@ -10,12 +10,15 @@ import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.utiltes.formatDate
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 
 class WeatherRepository(
     private val remoteDataSource: RemoteDataSource,
     private val localDataSource: LocalDataSource
     ) {
+
 
     fun fetchWeather(lat: Double, lon: Double, lan:String=localDataSource.getLan()): Flow<WeatherResponse> = flow {
         try {
@@ -27,9 +30,38 @@ class WeatherRepository(
                 uV = uvResponse
                 name = locationResponse.name
             }
+
             emit(weatherResponse)
         }catch(e: Exception) {
             throw Exception("Error fetching location: ${e.message}")
+        }
+    }
+
+    fun fetchWeatherAndUpdate(lat: Double, lon: Double, lan:String=localDataSource.getLan() , isNetwork:Boolean): Flow<WeatherResponse> = flow {
+        if(isNetwork)
+        {
+            try {
+                val weatherResponse = remoteDataSource.getWeather(lat, lon,lan)
+                val uvResponse = remoteDataSource.getUVIndex(lat, lon)
+                val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon).first()
+
+                weatherResponse.apply {
+                    uV = uvResponse
+                    name = locationResponse.name
+                }
+
+                localDataSource.deleteAllWeather()
+                localDataSource.insertWeather(weatherResponse)
+
+                emit(weatherResponse)
+            }catch(e: Exception) {
+                throw Exception("Error fetching location: ${e.message}")
+            }
+        }
+        else{
+            localDataSource.getLastWeather().collect { weatherResponse ->
+                weatherResponse?.let { emit(it) }
+            }
         }
     }
 
@@ -44,6 +76,60 @@ class WeatherRepository(
             }
         } catch (e: Exception) {
             throw Exception("Error fetching forecast: ${e.message}")
+        }
+    }
+
+    fun fetchForecastAndUpdate(lat: Double, lon: Double, lan:String=localDataSource.getLan() , isNetwork: Boolean): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
+        if(isNetwork)
+        {
+            try {
+                val forecastResponse = remoteDataSource.getForecast(lat, lon,lan)
+                forecastResponse.let { response ->
+                    val dailyForecasts = response.list.drop(1).distinctBy { formatDate(it.dt, "EEE") }
+                    val hourlyForecasts = response.list.take(8)
+
+                    val forecastItems = dailyForecasts.map { item ->
+                        ForecastItem(
+                            dt = item.dt,
+                            main = item.main,
+                            weather = item.weather,
+                            type = "days" // Set the type as "days"
+                        )
+                    } + hourlyForecasts.map { item ->
+                        ForecastItem(
+                            dt = item.dt,
+                            main = item.main,
+                            weather = item.weather,
+                            type = "hours" // Set the type as "hours"
+                        )
+                    }
+
+                    localDataSource.deleteAllForecastItems()
+
+                    localDataSource.insertForecastItems(forecastItems)
+
+                    emit(Pair(dailyForecasts, hourlyForecasts))
+                }
+            } catch (e: Exception) {
+                throw Exception("Error fetching forecast: ${e.message}")
+            }
+        }else{
+
+            val lastDailyForecasts = mutableListOf<ForecastItem>()
+            val lastHourlyForecasts = mutableListOf<ForecastItem>()
+
+            // Collect daily forecasts
+            localDataSource.getForecastItemsByType("days").collect { items ->
+                lastDailyForecasts.addAll(items)
+            }
+
+            // Collect hourly forecasts
+            localDataSource.getForecastItemsByType("hours").collect { items ->
+                lastHourlyForecasts.addAll(items)
+            }
+
+
+            emit(Pair(lastDailyForecasts, lastHourlyForecasts))
         }
     }
 
@@ -126,4 +212,5 @@ class WeatherRepository(
     suspend fun deleteOldAlarms(currentTimeMillis: Long) {
         localDataSource.deleteOldAlarms(currentTimeMillis)
     }
+
 }
