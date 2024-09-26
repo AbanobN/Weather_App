@@ -1,5 +1,6 @@
 package com.example.weatherapplication.ui.home.view
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -8,7 +9,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -19,7 +22,6 @@ import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
 import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.data.pojo.ForecastItem
-import com.example.weatherapplication.data.pojo.Location as CustomLocation
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
@@ -41,10 +43,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import android.Manifest
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
+import com.example.weatherapplication.data.pojo.Location as CustomLocation
 
 class HomeFragment : Fragment() {
 
