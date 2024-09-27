@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +29,7 @@ import com.example.weatherapplication.ui.adapters.DailyAdapter
 import com.example.weatherapplication.ui.adapters.HourlyAdapter
 import com.example.weatherapplication.ui.home.viewmodel.HomeViewModel
 import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
+import com.example.weatherapplication.utiltes.InternetState
 import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertToLocalTime
 import com.example.weatherapplication.utiltes.convertWindSpeed
@@ -53,6 +53,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var tempUnit: String
     private lateinit var windSpeed: String
+    private var isNetwork = false
 
     private var _location = MutableStateFlow<CustomLocation>(CustomLocation(0.0, 0.0))
 
@@ -82,6 +83,7 @@ class HomeFragment : Fragment() {
     ): View {
         fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
 
+        val internetState = InternetState(requireActivity().application)
 
         val remoteDataSource = RemoteDataSource()
         val localDataSource = LocalDataSource(
@@ -91,10 +93,12 @@ class HomeFragment : Fragment() {
 
         homeViewModel = ViewModelProvider(
             this,
-            HomeViewModelFactory(WeatherRepository(remoteDataSource, localDataSource))
+            HomeViewModelFactory(WeatherRepository(remoteDataSource, localDataSource),internetState)
         ).get(
             HomeViewModel::class.java
         )
+
+        observeInternetState()
 
         val latArg = arguments?.getFloat("lat")?.toDouble()
         val lonArg = arguments?.getFloat("lon")?.toDouble()
@@ -114,9 +118,8 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             _location.collect { loc ->
                 homeViewModel.apply {
-                    fetchWeatherData(loc.lat, loc.lon)
-                    fetchForecastData(loc.lat, loc.lon)
-                    Log.d("TAG", "onCreateView: ${loc.lat} , ${loc.lon}")
+                    fetchWeatherData(loc.lat, loc.lon,isNetwork)
+                    fetchForecastData(loc.lat, loc.lon,isNetwork)
                 }
             }
         }
@@ -303,6 +306,20 @@ class HomeFragment : Fragment() {
                     },
                     Looper.getMainLooper()
                 )
+            }
+        }
+    }
+
+    private fun observeInternetState() {
+        lifecycleScope.launch {
+            homeViewModel.isInternetAvailable.collect { isAvailable ->
+                if (isAvailable) {
+                    Toast.makeText(requireContext(), "Network is available", Toast.LENGTH_SHORT).show()
+                    isNetwork = true
+                } else {
+                    Toast.makeText(requireContext(), "Network is unavailable", Toast.LENGTH_SHORT).show()
+                    isNetwork = false
+                }
             }
         }
     }

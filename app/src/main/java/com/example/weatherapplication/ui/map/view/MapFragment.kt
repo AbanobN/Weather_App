@@ -43,7 +43,6 @@ class MapFragment : Fragment() {
     private lateinit var searchAdapter: SearchViewAdapter
     private lateinit var comeFrom: String
 
-    private val apiKey = "88be804d07441dfca3b574fec6dda8e7"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,7 +68,11 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.backBtn.setOnClickListener{
-            findNavController().navigate(R.id.action_mapFragment_to_nav_favorites)
+            if (comeFrom == "Setting")
+                findNavController().navigate(R.id.action_mapFragment_to_nav_settings)
+            else
+                findNavController().navigate(R.id.action_mapFragment_to_nav_favorites)
+
         }
 
         lifecycleScope.launch {

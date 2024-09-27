@@ -39,20 +39,5 @@ class SettingsViewModel(private val weatherRepository: WeatherRepository)  : Vie
         )
     }
 
-//    fun getLocation(): String{
-//        return weatherRepository.getLocation()
-//    }
-//    fun getLan():String{
-//        return weatherRepository.getLan()
-//    }
-//    fun getUnit() : String{
-//        return weatherRepository.getUnit()
-//    }
-//    fun getSpeed() : String{
-//        return weatherRepository.getSpeed()
-//    }
-//    fun getNotification(): String{
-//        return weatherRepository.getNotification()
-//    }
 
 }

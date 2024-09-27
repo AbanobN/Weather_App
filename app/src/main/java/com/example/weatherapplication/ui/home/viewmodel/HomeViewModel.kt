@@ -6,12 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
 import com.example.weatherapplication.data.repository.WeatherRepository
+import com.example.weatherapplication.utiltes.InternetState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class HomeViewModel (private val weatherRepository: WeatherRepository) : ViewModel() {
+class HomeViewModel (private val weatherRepository: WeatherRepository,
+                     private val internetState: InternetState) : ViewModel() {
 
     private val _weatherData = MutableStateFlow<WeatherResponse?>(null)
     val weatherData: StateFlow<WeatherResponse?> = _weatherData
@@ -25,13 +27,22 @@ class HomeViewModel (private val weatherRepository: WeatherRepository) : ViewMod
     private val _tempUnit = MutableStateFlow<String>("")
     val tempUnit: StateFlow<String> get() = _tempUnit
 
-    // MutableStateFlow for windSpeed
     private val _windSpeed = MutableStateFlow<String>("")
     val windSpeed: StateFlow<String> get() = _windSpeed
 
-    fun fetchWeatherData(lat: Double, lon: Double) {
+    private val _isInternetAvailable = MutableStateFlow(false)
+    val isInternetAvailable: StateFlow<Boolean> = _isInternetAvailable
+
+
+    init {
+        observeNetwork()
+    }
+
+
+    fun fetchWeatherData(lat: Double, lon: Double , isNetwork: Boolean) {
         viewModelScope.launch {
-            weatherRepository.fetchWeatherAndUpdate(lat=lat, lon=lon, isNetwork = false)
+
+            weatherRepository.fetchWeatherAndUpdate(lat=lat, lon=lon, isNetwork = isNetwork)
                 .catch { e ->
                     Log.d("TAG1", "fetchWeatherData: ${e.message}")
                 }
@@ -42,9 +53,10 @@ class HomeViewModel (private val weatherRepository: WeatherRepository) : ViewMod
     }
 
 
-    fun fetchForecastData(lat: Double, lon: Double) {
+    fun fetchForecastData(lat: Double, lon: Double, isNetwork: Boolean) {
         viewModelScope.launch {
-            weatherRepository.fetchForecastAndUpdate(lat=lat, lon=lon, isNetwork = false)
+
+            weatherRepository.fetchForecastAndUpdate(lat=lat, lon=lon, isNetwork = isNetwork)
                 .catch { e ->
                     Log.d("TAG1", "fetchForecastData: ${e.message}")
                 }
@@ -58,6 +70,13 @@ class HomeViewModel (private val weatherRepository: WeatherRepository) : ViewMod
     fun updateSettings() {
         _tempUnit.value = weatherRepository.getUnit()
         _windSpeed.value = weatherRepository.getSpeed()
+    }
+
+    private fun observeNetwork() {
+        viewModelScope.launch {
+            val isAvailable = internetState.isInternetAvailable()
+            _isInternetAvailable.value = isAvailable
+        }
     }
 
 }
