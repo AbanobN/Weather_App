@@ -101,6 +101,9 @@ dependencies {
     testImplementation (libs.kotlinx.coroutines.test.v160)
     testImplementation(kotlin("test"))
     testImplementation(libs.kotlin.test.junit)
+    testImplementation (libs.kotlinx.coroutines.test)
+    testImplementation (libs.mockk)
+    testImplementation (libs.turbine)
 
     // Instrumented Testing
     androidTestImplementation (libs.androidx.espresso.core)
@@ -108,4 +111,7 @@ dependencies {
     androidTestImplementation (libs.hamcrest)
     androidTestImplementation (libs.hamcrest.library)
     androidTestImplementation (libs.kotlinx.coroutines.test)
+    androidTestImplementation (libs.androidx.runner)
+    androidTestImplementation (libs.mockk.android)
+
 }

@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.WeatherResponse
-import com.example.weatherapplication.data.repository.WeatherRepository
+import com.example.weatherapplication.data.repository.IWeatherRepository
 import com.example.weatherapplication.utiltes.InternetState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class HomeViewModel (private val weatherRepository: WeatherRepository,
+class HomeViewModel (private val weatherRepository: IWeatherRepository,
                      private val internetState: InternetState) : ViewModel() {
 
     private val _weatherData = MutableStateFlow<WeatherResponse?>(null)
@@ -72,7 +72,7 @@ class HomeViewModel (private val weatherRepository: WeatherRepository,
         _windSpeed.value = weatherRepository.getSpeed()
     }
 
-    private fun observeNetwork() {
+    fun observeNetwork() {
         viewModelScope.launch {
             val isAvailable = internetState.isInternetAvailable()
             _isInternetAvailable.value = isAvailable

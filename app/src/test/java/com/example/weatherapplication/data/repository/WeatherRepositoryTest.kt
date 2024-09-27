@@ -1,10 +1,10 @@
 package com.example.weatherapplication.data.repository
 
 import com.example.weatherapplication.data.localdatasource.fakelocaldatasource.FakeLocalDataSource
+import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.pojo.Clouds
 import com.example.weatherapplication.data.pojo.Coord
 import com.example.weatherapplication.data.pojo.ForecastItem
-import com.example.weatherapplication.data.pojo.ForecastResponse
 import com.example.weatherapplication.data.pojo.Main
 import com.example.weatherapplication.data.pojo.Weather
 import com.example.weatherapplication.data.pojo.WeatherResponse
@@ -15,12 +15,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 
@@ -86,7 +84,7 @@ class WeatherRepositoryTest {
         val lon = 31.2357
         val isNetwork = false
 
-        // Mock the last weather data in the local data source
+        // Mock the last weather
         val lastWeatherResponse = WeatherResponse(
             main = Main(temp = 22.0, temp_min = 18.0, temp_max = 26.0, pressure = 1010, humidity = 60),
             weather = listOf(Weather(description = "Cloudy", icon = "02d")),
@@ -234,4 +232,50 @@ class WeatherRepositoryTest {
         assertEquals(listOf(mockHourlyForecast), result.second)  // Check hourly forecasts
     }
 
+    @Test
+    fun testInsertCity() = runBlocking {
+        val city = City(name = "Cairo", Coord(lon = 31.2357, lat = 30.0444)) // Create a test city
+
+        repository.insertCity(city)
+
+        // Verify that the city has been inserted
+        val citiesFlow = repository.getAllCities().toList() // Collect the flow
+        assertEquals(1, citiesFlow.last().size)
+        assertEquals(city.name, citiesFlow.last()[0].name)
+    }
+
+    @Test
+    fun testDeleteCity() = runBlocking {
+        val city1 = City(name = "Cairo", Coord(lon = 31.2357, lat = 30.0444))
+        val city2 = City(name = "Alexandria", Coord(lon = 31.2357, lat = 30.0444))
+
+        repository.insertCity(city1)
+        repository.insertCity(city2)
+
+        // Verify that both cities are inserted
+        var citiesFlow = repository.getAllCities().toList()
+        assertEquals(2, citiesFlow.last().size)
+
+        // Delete one city
+        repository.deleteCity("Cairo")
+
+        // Verify that the city has been deleted
+        repository.getAllCities().toList().also { citiesFlow = it }
+        assertEquals(1, citiesFlow.last().size)
+        assertTrue { citiesFlow.last().none { it.name == "Cairo" } }
+    }
+
+    @Test
+    fun testGetAllCities() = runBlocking {
+        val city1 = City(name = "Cairo", Coord(lon = 31.2357, lat = 30.0444))
+        val city2 = City(name = "Alexandria", Coord(lon = 31.2357, lat = 30.0444))
+
+        repository.insertCity(city1)
+        repository.insertCity(city2)
+
+        // Verify that both cities are retrieved correctly
+        val citiesFlow = repository.getAllCities().toList()
+        assertEquals(2, citiesFlow.last().size)
+        assertTrue { citiesFlow.last().map { it.name }.containsAll(listOf("Cairo", "Alexandria")) }
+    }
 }
