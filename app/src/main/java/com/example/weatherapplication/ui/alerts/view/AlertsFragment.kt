@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.alerts
+package com.example.weatherapplication.ui.alerts.view
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -28,8 +28,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.transition.Visibility
-import com.example.weatherapplication.R
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
 import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
@@ -37,6 +35,8 @@ import com.example.weatherapplication.data.pojo.AlarmData
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentAlertsBinding
+import com.example.weatherapplication.ui.alerts.viewmodel.AlertsViewModel
+import com.example.weatherapplication.ui.alerts.viewmodel.AlertsViewModelFactory
 import kotlinx.coroutines.launch
 import java.util.Calendar
 

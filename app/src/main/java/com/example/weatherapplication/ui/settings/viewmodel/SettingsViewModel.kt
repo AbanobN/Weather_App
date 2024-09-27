@@ -1,7 +1,5 @@
-package com.example.weatherapplication.ui.settings
+package com.example.weatherapplication.ui.settings.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weatherapplication.data.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow

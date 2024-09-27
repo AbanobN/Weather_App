@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.alerts
+package com.example.weatherapplication.ui.alerts.view
 
 import android.app.Notification
 import android.app.NotificationManager

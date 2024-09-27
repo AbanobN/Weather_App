@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.alerts
+package com.example.weatherapplication.ui.alerts.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

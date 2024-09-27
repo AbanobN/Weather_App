@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.alerts
+package com.example.weatherapplication.ui.alerts.view
 
 import android.app.Service
 import android.content.Context

@@ -1,10 +1,9 @@
-package com.example.weatherapplication.ui.settings
+package com.example.weatherapplication.ui.settings.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -17,15 +16,14 @@ import com.example.weatherapplication.data.localdatasource.sharedpreferences.Sha
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentSettingsBinding
-import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
-import com.example.weatherapplication.ui.map.viewmodel.MapViewModel
-import com.example.weatherapplication.ui.map.viewmodel.MapViewModelFactory
+import com.example.weatherapplication.ui.settings.viewmodel.SettingViewModelFactory
+import com.example.weatherapplication.ui.settings.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment() {
 
     private lateinit var _binding: FragmentSettingsBinding
-    private lateinit var  settingsViewModel:SettingsViewModel
+    private lateinit var  settingsViewModel: SettingsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,

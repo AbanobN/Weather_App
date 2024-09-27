@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.alerts
+package com.example.weatherapplication.ui.alerts.view
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -21,7 +21,7 @@ class AlarmDiff:DiffUtil.ItemCallback<AlarmData>(){
     }
 }
 
-class AlarmAdapter :ListAdapter<AlarmData,AlarmAdapter.AlarmViewHolder>(AlarmDiff())
+class AlarmAdapter :ListAdapter<AlarmData, AlarmAdapter.AlarmViewHolder>(AlarmDiff())
 {
 
     lateinit var binding: AlarmItemBinding

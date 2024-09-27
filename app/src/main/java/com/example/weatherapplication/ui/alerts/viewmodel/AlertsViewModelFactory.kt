@@ -1,14 +1,14 @@
-package com.example.weatherapplication.ui.settings
+package com.example.weatherapplication.ui.alerts.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapplication.data.repository.WeatherRepository
 
-class SettingViewModelFactory(private val weatherRepository: WeatherRepository) : ViewModelProvider.Factory {
+class AlertsViewModelFactory (private val weatherRepository: WeatherRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(AlertsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SettingsViewModel(weatherRepository) as T
+            return AlertsViewModel(weatherRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
