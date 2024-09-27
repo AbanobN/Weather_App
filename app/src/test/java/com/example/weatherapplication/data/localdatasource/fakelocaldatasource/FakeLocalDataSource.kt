@@ -23,6 +23,9 @@ class FakeLocalDataSource : ILocalDataSource {
     private var location: String = ""
     private var notification: String = ""
 
+    fun addForecastItem(item: ForecastItem) {
+        forecastItemsList.add(item)
+    }
 
     override fun getAllCities(): Flow<List<City>> = flow {
         emit(citiesList)
