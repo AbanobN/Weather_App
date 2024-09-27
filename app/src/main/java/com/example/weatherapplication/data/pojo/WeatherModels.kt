@@ -20,7 +20,7 @@ data class WeatherResponse(
 )
 
 
-data class Coord(val lon: Double, val lat: Double)
+data class Coord(var lon: Double, var lat: Double)
 
 data class Weather(
     val description: String,
@@ -77,12 +77,6 @@ data class AlarmData(
     val time:Long
 )
 
-
-// not needed
-data class Location(
-    var latitude : Double,
-    var longitude : Double
-)
 
 
 

@@ -43,7 +43,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import com.example.weatherapplication.data.pojo.Location as CustomLocation
+import com.example.weatherapplication.data.pojo.Coord as CustomLocation
 
 class HomeFragment : Fragment() {
 
@@ -102,8 +102,8 @@ class HomeFragment : Fragment() {
 
         if(latArg != null && latArg > 0 && lonArg != null && lonArg > 0)
         {
-            _location.value.latitude = latArg
-            _location.value.longitude = lonArg
+            _location.value.lat = latArg
+            _location.value.lon = lonArg
         }
         else{
             checkLocationPermission()
@@ -114,9 +114,9 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             _location.collect { loc ->
                 homeViewModel.apply {
-                    fetchWeatherData(loc.latitude, loc.longitude)
-                    fetchForecastData(loc.latitude, loc.longitude)
-                    Log.d("TAG", "onCreateView: ${loc.latitude} , ${loc.longitude}")
+                    fetchWeatherData(loc.lat, loc.lon)
+                    fetchForecastData(loc.lat, loc.lon)
+                    Log.d("TAG", "onCreateView: ${loc.lat} , ${loc.lon}")
                 }
             }
         }
@@ -277,7 +277,7 @@ class HomeFragment : Fragment() {
             val androidLocation = task.result
             if (androidLocation != null) {
                 // Convert Android Location to Custom Location
-                val customLocation = CustomLocation(androidLocation.latitude, androidLocation.longitude)
+                val customLocation = CustomLocation(androidLocation.longitude, androidLocation.latitude)
                 // Update the StateFlow or LiveData with the custom location
                 _location.value = customLocation
             } else {
@@ -294,7 +294,7 @@ class HomeFragment : Fragment() {
                             val androidLastLocation = locationResult.lastLocation
                             androidLastLocation?.let {
                                 // Convert Android Location to Custom Location
-                                val customLocation = CustomLocation(it.latitude, it.longitude)
+                                val customLocation = CustomLocation(it.longitude, it.latitude)
                                 // Update the StateFlow or LiveData with the custom location
                                 _location.value = customLocation
                             }

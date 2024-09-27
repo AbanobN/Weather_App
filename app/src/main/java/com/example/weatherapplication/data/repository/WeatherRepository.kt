@@ -1,5 +1,6 @@
 package com.example.weatherapplication.data.repository
 
+import android.util.Log
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
 import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
 import com.example.weatherapplication.data.pojo.AlarmData
@@ -85,7 +86,7 @@ class WeatherRepository(
             try {
                 val forecastResponse = remoteDataSource.getForecast(lat, lon,lan)
                 forecastResponse.let { response ->
-                    val dailyForecasts = response.list.drop(1).distinctBy { formatDate(it.dt, "EEE") }
+                    val dailyForecasts = response.list.distinctBy { formatDate(it.dt, "EEE") }.drop(1)
                     val hourlyForecasts = response.list.take(8)
 
                     val forecastItems = dailyForecasts.map { item ->
@@ -93,14 +94,14 @@ class WeatherRepository(
                             dt = item.dt,
                             main = item.main,
                             weather = item.weather,
-                            type = "days" // Set the type as "days"
+                            type = "days"
                         )
                     } + hourlyForecasts.map { item ->
                         ForecastItem(
                             dt = item.dt,
                             main = item.main,
                             weather = item.weather,
-                            type = "hours" // Set the type as "hours"
+                            type = "hours"
                         )
                     }
 
@@ -115,19 +116,8 @@ class WeatherRepository(
             }
         }else{
 
-            val lastDailyForecasts = mutableListOf<ForecastItem>()
-            val lastHourlyForecasts = mutableListOf<ForecastItem>()
-
-            // Collect daily forecasts
-            localDataSource.getForecastItemsByType("days").collect { items ->
-                lastDailyForecasts.addAll(items)
-            }
-
-            // Collect hourly forecasts
-            localDataSource.getForecastItemsByType("hours").collect { items ->
-                lastHourlyForecasts.addAll(items)
-            }
-
+            val lastDailyForecasts = localDataSource.getForecastItemsByType("days").first()
+            val lastHourlyForecasts = localDataSource.getForecastItemsByType("hours").first()
 
             emit(Pair(lastDailyForecasts, lastHourlyForecasts))
         }
