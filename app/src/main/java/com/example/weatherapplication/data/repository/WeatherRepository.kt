@@ -1,29 +1,26 @@
 package com.example.weatherapplication.data.repository
 
-import android.util.Log
-import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
-import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
+import com.example.weatherapplication.data.localdatasource.localdatsource.ILocalDataSource
 import com.example.weatherapplication.data.pojo.AlarmData
 import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.pojo.ForecastItem
 import com.example.weatherapplication.data.pojo.LocationResponse
 import com.example.weatherapplication.data.pojo.WeatherResponse
-import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
+import com.example.weatherapplication.data.remotedatasource.remotedatasource.IRemoteDataSource
 import com.example.weatherapplication.utiltes.formatDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
 
 class WeatherRepository(
-    private val remoteDataSource: RemoteDataSource,
-    private val localDataSource: LocalDataSource
-    ) {
+    private val remoteDataSource: IRemoteDataSource,
+    private val localDataSource: ILocalDataSource
+    ) : IWeatherRepository {
 
 
-    fun fetchWeather(lat: Double, lon: Double, lan:String=localDataSource.getLan()): Flow<WeatherResponse> = flow {
+    override fun fetchWeather(lat: Double, lon: Double): Flow<WeatherResponse> = flow {
         try {
-            val weatherResponse = remoteDataSource.getWeather(lat, lon,lan)
+            val weatherResponse = remoteDataSource.getWeather(lat, lon,lan = localDataSource.getLan())
             val uvResponse = remoteDataSource.getUVIndex(lat, lon)
             val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon).first()
 
@@ -38,11 +35,11 @@ class WeatherRepository(
         }
     }
 
-    fun fetchWeatherAndUpdate(lat: Double, lon: Double, lan:String=localDataSource.getLan() , isNetwork:Boolean): Flow<WeatherResponse> = flow {
+    override fun fetchWeatherAndUpdate(lat: Double, lon: Double, isNetwork:Boolean): Flow<WeatherResponse> = flow {
         if(isNetwork)
         {
             try {
-                val weatherResponse = remoteDataSource.getWeather(lat, lon,lan)
+                val weatherResponse = remoteDataSource.getWeather(lat, lon,lan = localDataSource.getLan())
                 val uvResponse = remoteDataSource.getUVIndex(lat, lon)
                 val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon).first()
 
@@ -67,9 +64,9 @@ class WeatherRepository(
     }
 
 
-    fun fetchForecast(lat: Double, lon: Double, lan:String=localDataSource.getLan()): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
+    override fun fetchForecast(lat: Double, lon: Double): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
         try {
-            val forecastResponse = remoteDataSource.getForecast(lat, lon,lan)
+            val forecastResponse = remoteDataSource.getForecast(lat, lon,lan = localDataSource.getLan())
             forecastResponse.let { response ->
                 val dailyForecasts = response.list.drop(1).distinctBy { formatDate(it.dt, "EEE") }
                 val hourlyForecasts = response.list.take(8)
@@ -80,11 +77,11 @@ class WeatherRepository(
         }
     }
 
-    fun fetchForecastAndUpdate(lat: Double, lon: Double, lan:String=localDataSource.getLan() , isNetwork: Boolean): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
+    override fun fetchForecastAndUpdate(lat: Double, lon: Double, isNetwork: Boolean): Flow<Pair<List<ForecastItem>, List<ForecastItem>>> = flow {
         if(isNetwork)
         {
             try {
-                val forecastResponse = remoteDataSource.getForecast(lat, lon,lan)
+                val forecastResponse = remoteDataSource.getForecast(lat, lon,lan=localDataSource.getLan())
                 forecastResponse.let { response ->
                     val dailyForecasts = response.list.distinctBy { formatDate(it.dt, "EEE") }.drop(1)
                     val hourlyForecasts = response.list.take(8)
@@ -123,7 +120,7 @@ class WeatherRepository(
         }
     }
 
-    fun getLocationByCoordinates(lat: Double, lon: Double): Flow<LocationResponse> = flow {
+    override fun getLocationByCoordinates(lat: Double, lon: Double): Flow<LocationResponse> = flow {
         try {
             val locationResponse = remoteDataSource.getLocationByCoordinates(lat, lon).first()
             emit(locationResponse)
@@ -132,7 +129,7 @@ class WeatherRepository(
         }
     }
 
-    fun getLocationByCityName(cityName: String): Flow<LocationResponse> = flow {
+    override fun getLocationByCityName(cityName: String): Flow<LocationResponse> = flow {
         try {
             val locationResponse = remoteDataSource.getLocationByCityName(cityName).first()
             emit(locationResponse)
@@ -142,64 +139,64 @@ class WeatherRepository(
     }
 
 
-    fun getAllCities(): Flow<List<City>> {
+    override fun getAllCities(): Flow<List<City>> {
         return localDataSource.getAllCities()
     }
 
-    suspend fun insertCity(city: City) {
+    override suspend fun insertCity(city: City) {
         localDataSource.insertCity(city)
     }
 
-    suspend fun deleteCity(cityName: String) {
+    override suspend fun deleteCity(cityName: String) {
         localDataSource.deleteCity(cityName)
     }
 
-    fun setLan(lan : String){
+    override fun setLan(lan : String){
         localDataSource.setLan(lan)
     }
-    fun getLan() : String{
+    override fun getLan() : String{
         return localDataSource.getLan()
     }
 
-    fun setSpeed(speed : String){
+    override fun setSpeed(speed : String){
         localDataSource.setSpeed(speed)
     }
-    fun getSpeed() : String{
+    override fun getSpeed() : String{
         return localDataSource.getSpeed()
     }
 
-    fun setUnit(unit : String){
+    override fun setUnit(unit : String){
         localDataSource.setUnit(unit)
     }
-    fun getUnit() : String{
+    override fun getUnit() : String{
         return localDataSource.getUnit()
     }
-    fun setLocation(location: String){
+    override fun setLocation(location: String){
         localDataSource.setLocation(location)
     }
-    fun getLocation(): String{
+    override fun getLocation(): String{
         return localDataSource.getLocation()
     }
-    fun setNotification(notification: String){
+    override fun setNotification(notification: String){
         localDataSource.setNotification(notification)
     }
-    fun getNotification(): String{
+    override fun getNotification(): String{
         return localDataSource.getNotification()
     }
 
-    fun getAllLocalAlarm(): Flow<List<AlarmData>> {
+    override fun getAllLocalAlarm(): Flow<List<AlarmData>> {
         return localDataSource.getAllLocalAlarm()
     }
 
-    suspend fun insertAlarmData(alarmData: AlarmData) {
+    override suspend fun insertAlarmData(alarmData: AlarmData) {
         localDataSource.insertAlarmData(alarmData)
     }
 
-    suspend fun deletAlarm(alarmData: AlarmData) {
+    override suspend fun deletAlarm(alarmData: AlarmData) {
         localDataSource.deletAlarm(alarmData)
     }
 
-    suspend fun deleteOldAlarms(currentTimeMillis: Long) {
+    override suspend fun deleteOldAlarms(currentTimeMillis: Long) {
         localDataSource.deleteOldAlarms(currentTimeMillis)
     }
 

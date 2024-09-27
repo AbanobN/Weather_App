@@ -87,4 +87,25 @@ dependencies {
     implementation (libs.androidx.navigation.fragment.ktx.v281)
     implementation (libs.androidx.navigation.ui.ktx)
     implementation (libs.osmdroid.android)
+
+
+    // Unit Testing
+    testImplementation (libs.hamcrest.all)
+    testImplementation (libs.hamcrest.library)
+    testImplementation (libs.mockito.kotlin)
+    testImplementation (libs.androidx.core.testing)
+    testImplementation (libs.robolectric)
+    testImplementation (libs.core.ktx)
+    testImplementation (libs.kotlinx.coroutines.test)
+    testImplementation (libs.mockito.core)
+    testImplementation (libs.kotlinx.coroutines.test.v160)
+    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test.junit)
+
+    // Instrumented Testing
+    androidTestImplementation (libs.androidx.espresso.core)
+    androidTestImplementation (libs.androidx.core.testing)
+    androidTestImplementation (libs.hamcrest)
+    androidTestImplementation (libs.hamcrest.library)
+    androidTestImplementation (libs.kotlinx.coroutines.test)
 }

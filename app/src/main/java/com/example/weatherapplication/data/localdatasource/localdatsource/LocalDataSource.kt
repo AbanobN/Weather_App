@@ -9,96 +9,98 @@ import com.example.weatherapplication.data.pojo.WeatherResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class LocalDataSource(private val database: AppDatabase, private val sharedPreferences: SharedPreferences) {
-    private val cityDao = database.cityDao()
-    private val alarmDao = database.alarmDao()
-    private val weatherDao = database.weatherDao()
-    private val forecastDao = database.forecastDao()
+class LocalDataSource(private val database: AppDatabase, private val sharedPreferences: SharedPreferences) :
+    ILocalDataSource {
+
+   val cityDao = database.cityDao()
+   val alarmDao = database.alarmDao()
+   val weatherDao = database.weatherDao()
+   val forecastDao = database.forecastDao()
 
 
-    fun getAllCities(): Flow<List<City>> {
+    override fun getAllCities(): Flow<List<City>> {
         return cityDao.getAllCities()
     }
 
-    suspend fun insertCity(city: City) {
+    override suspend fun insertCity(city: City) {
         cityDao.insertCity(city)
     }
 
-    suspend fun deleteCity(cityName: String) {
+    override suspend fun deleteCity(cityName: String) {
         cityDao.deleteCity(cityName)
     }
 
-    fun setLan(lan : String){
+    override fun setLan(lan : String){
         sharedPreferences.saveLanguage(lan)
     }
-    fun getLan() : String{
+    override fun getLan() : String{
         return sharedPreferences.getLanguage()
     }
 
-    fun setSpeed(speed : String){
+    override fun setSpeed(speed : String){
         sharedPreferences.saveSpeed(speed)
     }
-    fun getSpeed() : String{
+    override fun getSpeed() : String{
         return sharedPreferences.getSpeed()
     }
 
-    fun setUnit(unit : String){
+    override fun setUnit(unit : String){
         sharedPreferences.saveUnit(unit)
     }
-    fun getUnit() : String{
+    override fun getUnit() : String{
         return sharedPreferences.getUnit()
     }
 
-    fun setLocation(location: String){
+    override fun setLocation(location: String){
         sharedPreferences.saveLocation(location)
     }
-    fun getLocation(): String{
+    override fun getLocation(): String{
         return sharedPreferences.getLocation()
     }
 
-    fun setNotification(notification: String){
+    override fun setNotification(notification: String){
         sharedPreferences.saveNotification(notification)
     }
-    fun getNotification(): String{
+    override fun getNotification(): String{
         return sharedPreferences.getNotification()
     }
 
-    fun getAllLocalAlarm(): Flow<List<AlarmData>> {
+    override fun getAllLocalAlarm(): Flow<List<AlarmData>> {
         return alarmDao.getAllLocalAlarm()
     }
 
-    suspend fun insertAlarmData(alarmData: AlarmData) {
+    override suspend fun insertAlarmData(alarmData: AlarmData) {
         alarmDao.insertAlarm(alarmData)
     }
 
-    suspend fun deletAlarm(alarmData: AlarmData) {
+    override suspend fun deletAlarm(alarmData: AlarmData) {
         alarmDao.deleteAlarm(alarmData)
     }
 
-    suspend fun deleteOldAlarms(currentTimeMillis: Long) {
+    override suspend fun deleteOldAlarms(currentTimeMillis: Long) {
         alarmDao.deleteOldAlarms(currentTimeMillis)
     }
 
-    suspend fun insertWeather(weatherResponse: WeatherResponse) {
+    override suspend fun insertWeather(weatherResponse: WeatherResponse) {
         weatherDao.insertWeather(weatherResponse)
     }
 
-    fun getLastWeather(): Flow<WeatherResponse?> = flow {
+    override fun getLastWeather(): Flow<WeatherResponse?> = flow {
         emit(weatherDao.getLastWeather())
     }
 
-    suspend fun deleteAllWeather() {
+    override suspend fun deleteAllWeather() {
         weatherDao.deleteAllWeather()
     }
 
-    suspend fun insertForecastItems(forecastItems: List<ForecastItem>) {
+    override suspend fun insertForecastItems(forecastItems: List<ForecastItem>) {
         forecastDao.insertForecastItems(forecastItems)
     }
-    suspend fun deleteAllForecastItems() {
+    override suspend fun deleteAllForecastItems() {
         forecastDao.deleteAllForecastItems()
     }
 
-    fun getForecastItemsByType(type: String): Flow<List<ForecastItem>> {
+    override fun getForecastItemsByType(type: String): Flow<List<ForecastItem>> {
         return forecastDao.getForecastItemsByType(type)
     }
 }
