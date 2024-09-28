@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.pojo.Coord
 import com.example.weatherapplication.data.repository.IWeatherRepository
+import com.example.weatherapplication.utiltes.InternetState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
@@ -23,12 +24,14 @@ class FavoritesViewModelTest {
 
     private lateinit var weatherRepository: IWeatherRepository
     private lateinit var favoritesViewModel: FavoritesViewModel
+    private lateinit var internetState: InternetState
 
     @Before
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         weatherRepository = mock(IWeatherRepository::class.java)
-        favoritesViewModel = FavoritesViewModel(weatherRepository)
+        internetState = mock(InternetState::class.java)
+        favoritesViewModel = FavoritesViewModel(weatherRepository, internetState)
     }
 
     @Test
@@ -61,6 +64,6 @@ class FavoritesViewModelTest {
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain() // Reset main dispatcher for tests
+        Dispatchers.resetMain() // Reset main dispatcher
     }
 }
