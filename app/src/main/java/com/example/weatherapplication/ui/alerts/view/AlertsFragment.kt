@@ -16,7 +16,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -305,7 +304,7 @@ class AlertsFragment : Fragment() {
 
     private fun getRequestCodeFromPreferences(): Int {
         val sharedPrefs = requireActivity().getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-        return sharedPrefs.getInt(requestCodeKey, 0) // Default value is 0
+        return sharedPrefs.getInt(requestCodeKey, 0)
     }
 
     // Example function where you can modify the requestCode and save it

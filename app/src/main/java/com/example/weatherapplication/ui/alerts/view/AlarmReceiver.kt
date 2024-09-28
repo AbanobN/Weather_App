@@ -39,7 +39,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val notification = Notification.Builder(context, "channel_id")
             .setContentTitle("Weather Notification")
             .setContentText("It's time to check the weather!")
-            .setSmallIcon(R.drawable.ic_alerts)
+            .setSmallIcon(R.drawable.weather_app_logo)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()

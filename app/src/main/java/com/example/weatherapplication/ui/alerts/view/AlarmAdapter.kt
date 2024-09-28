@@ -35,7 +35,7 @@ class AlarmAdapter (val deleteAlarm: (alarmData:AlarmData) -> Unit):ListAdapter<
 
     override fun onBindViewHolder(holder: AlarmViewHolder, position: Int) {
         val currentAlarm = getItem(position)
-        holder.binding.time.text=convertMilliSecondsToTime(currentAlarm.time,"hh:mm")
+        holder.binding.time.text = convertMilliSecondsToTime(currentAlarm.time,"hh:mm")
 
         holder.binding.cancelButton.setOnClickListener{
             deleteAlarm(currentAlarm)
