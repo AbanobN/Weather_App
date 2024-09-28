@@ -13,15 +13,15 @@ import java.util.Locale
 
 class AlarmDiff:DiffUtil.ItemCallback<AlarmData>(){
     override fun areItemsTheSame(oldItem: AlarmData, newItem: AlarmData): Boolean {
-        return oldItem.requestCode==newItem.requestCode
+        return oldItem.requestCode == newItem.requestCode
     }
 
     override fun areContentsTheSame(oldItem: AlarmData, newItem: AlarmData): Boolean {
-        return oldItem==newItem
+        return oldItem == newItem
     }
 }
 
-class AlarmAdapter :ListAdapter<AlarmData, AlarmAdapter.AlarmViewHolder>(AlarmDiff())
+class AlarmAdapter (val deleteAlarm: (alarmData:AlarmData) -> Unit):ListAdapter<AlarmData, AlarmAdapter.AlarmViewHolder>(AlarmDiff())
 {
 
     lateinit var binding: AlarmItemBinding
@@ -34,11 +34,15 @@ class AlarmAdapter :ListAdapter<AlarmData, AlarmAdapter.AlarmViewHolder>(AlarmDi
     }
 
     override fun onBindViewHolder(holder: AlarmViewHolder, position: Int) {
-        val currentAlarm =getItem(position)
-        holder.binding.time.text=convertMilliSecondsToTime(currentAlarm.time,"hh mm")
+        val currentAlarm = getItem(position)
+        holder.binding.time.text=convertMilliSecondsToTime(currentAlarm.time,"hh:mm")
+
+        holder.binding.cancelButton.setOnClickListener{
+            deleteAlarm(currentAlarm)
+        }
     }
 
-    fun convertMilliSecondsToTime(milliSeconds: Long, pattern: String): String
+    private fun convertMilliSecondsToTime(milliSeconds: Long, pattern: String): String
     {
         val dateFormat = SimpleDateFormat(pattern, Locale.getDefault())
 

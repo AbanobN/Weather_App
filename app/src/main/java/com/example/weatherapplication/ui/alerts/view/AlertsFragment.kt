@@ -91,7 +91,10 @@ class AlertsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        myAdapter = AlarmAdapter()
+        myAdapter = AlarmAdapter {
+            alertsViewModel.deleteAlarm(requireContext(), it)
+        }
+
         binding.recViewAlerts.layoutManager= LinearLayoutManager(context)
         binding.recViewAlerts.adapter=myAdapter
 
@@ -196,9 +199,9 @@ class AlertsFragment : Fragment() {
             Toast.makeText(requireContext(), "Cannot set alarm for past time!", Toast.LENGTH_SHORT).show()
             return
         }
+
         val alarmRequest =getRequestCodeFromPreferences()
         val alarmTimeInMillis = calendar.timeInMillis
-        Log.d("AlarmTime", "Setting alarm for: $alarmTimeInMillis (${calendar.time})")
 
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(requireContext(), AlarmReceiver::class.java)
@@ -226,7 +229,6 @@ class AlertsFragment : Fragment() {
             Toast.makeText(requireContext(), "Alarm Set Successfully!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Failed to set alarm: ${e.message}", Toast.LENGTH_SHORT).show()
-            Log.e("AlarmError", "Error setting alarm", e)
         }
         alertsViewModel.insertAlarm(AlarmData(alarmRequest,alarmTimeInMillis))
     }

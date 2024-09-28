@@ -16,19 +16,15 @@ class AlarmReceiver : BroadcastReceiver() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("AlarmReceiver", "Alarm Received")
-
             when (intent?.action) {
                 "ALARM" -> {
                     // Start the overlay service for alarm
                     val serviceIntent = Intent(context, OverlayService::class.java)
                     context?.startService(serviceIntent)
-                    Log.d("AlarmReceiver", "Alarm Triggered and Overlay Service Started")
                 }
                 "NOTIFICATION" -> {
                     // Show a notification for the scheduled time
                     showNotification(context)
-                    Log.d("AlarmReceiver", "Notification Triggered")
                 }
             }
         }
@@ -50,4 +46,6 @@ class AlarmReceiver : BroadcastReceiver() {
 
         notificationManager.notify(0, notification)
     }
+
+
 }

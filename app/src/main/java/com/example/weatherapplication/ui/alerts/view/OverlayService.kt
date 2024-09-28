@@ -40,9 +40,7 @@ class OverlayService : Service() {
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
             PixelFormat.TRANSLUCENT
         )
-        params.let {
-            it.gravity= Gravity.TOP
-        }
+        params.gravity = Gravity.TOP
 
 
         // insert the view into the window and then display it
