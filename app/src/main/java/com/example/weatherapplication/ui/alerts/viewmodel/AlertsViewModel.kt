@@ -3,12 +3,12 @@ package com.example.weatherapplication.ui.alerts.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapplication.data.pojo.AlarmData
-import com.example.weatherapplication.data.repository.WeatherRepository
+import com.example.weatherapplication.data.repository.IWeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AlertsViewModel(private val weatherRepository: WeatherRepository): ViewModel() {
+class AlertsViewModel(private val weatherRepository: IWeatherRepository): ViewModel() {
 
     private val _alarms= MutableStateFlow<List<AlarmData>>(emptyList())
     val alarms : StateFlow<List<AlarmData>> get() = _alarms

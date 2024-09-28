@@ -57,5 +57,10 @@
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
 
+    <string name="no_network">No Network</string>
+    <string name="open_network">Please Open Network and Try again.</string>
+    <string name="no_network_lang">Need Network To Full Translation, Open Network and Try again.</string>
+    <string name="ok">OK</string>
+
 
 </resources>

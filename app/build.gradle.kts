@@ -114,4 +114,7 @@ dependencies {
     androidTestImplementation (libs.androidx.runner)
     androidTestImplementation (libs.mockk.android)
 
+
+    implementation (libs.lottie)
+
 }

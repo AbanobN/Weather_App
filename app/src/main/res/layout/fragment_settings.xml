@@ -17,285 +17,297 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Location & Language Section side by side -->
-        <LinearLayout
+
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
+            android:layout_height="match_parent">
 
-            <!-- Location Section -->
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#42000000"
-                android:elevation="4dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_toolbar_background"
-                    android:padding="12dp"
-                    android:text="@string/location"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/group_location"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="8dp">
-
-                    <RadioButton
-                        android:id="@+id/gps"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:buttonTint="#DCA900"
-                        android:checked="true"
-                        android:padding="8dp"
-                        android:text="@string/gps"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-
-                    <RadioButton
-                        android:id="@+id/map"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:buttonTint="#DCA900"
-                        android:padding="8dp"
-                        android:text="@string/map"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-                </RadioGroup>
-            </LinearLayout>
-
-            <!-- Language Section -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#42000000"
-                android:elevation="4dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_favorite_item"
-                    android:padding="12dp"
-                    android:text="@string/language"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/group_language"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="8dp">
-
-                    <RadioButton
-                        android:id="@+id/english"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:buttonTint="#DCA900"
-                        android:checked="true"
-                        android:padding="8dp"
-                        android:text="@string/english"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-
-                    <RadioButton
-                        android:id="@+id/arabic"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:buttonTint="#DCA900"
-                        android:padding="8dp"
-                        android:text="@string/arabic"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-                </RadioGroup>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Temperature & Wind Speed Section side by side -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
-
-            <!-- Temperature Section -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#42000000"
-                android:elevation="4dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_favorite_item"
-                    android:padding="12dp"
-                    android:text="@string/temperature"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/group_temperature"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="8dp">
-
-                    <RadioButton
-                        android:id="@+id/celsius"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:buttonTint="#DCA900"
-                        android:checked="true"
-                        android:padding="8dp"
-                        android:text="@string/celsius"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-
-                    <RadioButton
-                        android:id="@+id/kelvin"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:buttonTint="#DCA900"
-                        android:checked="false"
-                        android:padding="8dp"
-                        android:text="@string/kelvin"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-
-                    <RadioButton
-                        android:id="@+id/fahrenheit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:buttonTint="#DCA900"
-                        android:padding="8dp"
-                        android:text="@string/fahrenheit"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-                </RadioGroup>
-            </LinearLayout>
-
-            <!-- Wind Speed Section -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="#42000000"
-                android:elevation="4dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_favorite_item"
-                    android:padding="12dp"
-                    android:text="@string/windspeed"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/group_wind_speed"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="8dp">
-
-                    <RadioButton
-                        android:id="@+id/meter_sec"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:buttonTint="#DCA900"
-                        android:checked="true"
-                        android:padding="8dp"
-                        android:text="@string/mps"
-                        android:textColor="@color/white"
-                        android:textSize="16sp" />
-
-                    <RadioButton
-                        android:id="@+id/mile_hour"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:buttonTint="#DCA900"
-                        android:padding="8dp"
-                        android:text="@string/mph"
-                        android:textColor="@color/white"
-                        android:textSize="16sp" />
-                </RadioGroup>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Notifications Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#42000000"
-            android:elevation="4dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rounded_favorite_item"
-                android:padding="12dp"
-                android:text="@string/notifications"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:orientation="vertical" >
 
-            <RadioGroup
-                android:id="@+id/group_notifications"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="8dp">
+                <!-- Location & Language Section side by side -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
 
-                <RadioButton
-                    android:id="@+id/enable"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:buttonTint="#DCA900"
-                    android:checked="true"
-                    android:padding="8dp"
-                    android:text="@string/enable"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    <!-- Location Section -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="#42000000"
+                        android:elevation="4dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                <RadioButton
-                    android:id="@+id/disable"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:buttonTint="#DCA900"
-                    android:padding="8dp"
-                    android:text="@string/disable"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
-            </RadioGroup>
-        </LinearLayout>
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/rounded_toolbar_background"
+                            android:padding="12dp"
+                            android:text="@string/location"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <RadioGroup
+                            android:id="@+id/group_location"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp">
+
+                            <RadioButton
+                                android:id="@+id/gps"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:buttonTint="#DCA900"
+                                android:checked="true"
+                                android:padding="8dp"
+                                android:text="@string/gps"
+                                android:textColor="@color/white"
+                                android:textSize="18sp" />
+
+                            <RadioButton
+                                android:id="@+id/map"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:buttonTint="#DCA900"
+                                android:padding="8dp"
+                                android:text="@string/map"
+                                android:textColor="@color/white"
+                                android:textSize="18sp" />
+                        </RadioGroup>
+                    </LinearLayout>
+
+                    <!-- Language Section -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="#42000000"
+                        android:elevation="4dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/rounded_favorite_item"
+                            android:padding="12dp"
+                            android:text="@string/language"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <RadioGroup
+                            android:id="@+id/group_language"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp">
+
+                            <RadioButton
+                                android:id="@+id/english"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:buttonTint="#DCA900"
+                                android:checked="true"
+                                android:padding="8dp"
+                                android:text="@string/english"
+                                android:textColor="@color/white"
+                                android:textSize="18sp" />
+
+                            <RadioButton
+                                android:id="@+id/arabic"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:buttonTint="#DCA900"
+                                android:padding="8dp"
+                                android:text="@string/arabic"
+                                android:textColor="@color/white"
+                                android:textSize="18sp" />
+                        </RadioGroup>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Temperature & Wind Speed Section side by side -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
+
+                    <!-- Temperature Section -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="#42000000"
+                        android:elevation="4dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/rounded_favorite_item"
+                            android:padding="12dp"
+                            android:text="@string/temperature"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <RadioGroup
+                            android:id="@+id/group_temperature"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp">
+
+                            <RadioButton
+                                android:id="@+id/celsius"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:buttonTint="#DCA900"
+                                android:checked="true"
+                                android:padding="8dp"
+                                android:text="@string/celsius"
+                                android:textColor="@color/white"
+                                android:textSize="18sp" />
+
+                            <RadioButton
+                                android:id="@+id/kelvin"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:buttonTint="#DCA900"
+                                android:checked="false"
+                                android:padding="8dp"
+                                android:text="@string/kelvin"
+                                android:textColor="@color/white"
+                                android:textSize="18sp" />
+
+                            <RadioButton
+                                android:id="@+id/fahrenheit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="48dp"
+                                android:buttonTint="#DCA900"
+                                android:padding="8dp"
+                                android:text="@string/fahrenheit"
+                                android:textColor="@color/white"
+                                android:textSize="18sp" />
+                        </RadioGroup>
+                    </LinearLayout>
+
+                    <!-- Wind Speed Section -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#42000000"
+                        android:elevation="4dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/rounded_favorite_item"
+                            android:padding="12dp"
+                            android:text="@string/windspeed"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <RadioGroup
+                            android:id="@+id/group_wind_speed"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp">
+
+                            <RadioButton
+                                android:id="@+id/meter_sec"
+                                android:layout_width="wrap_content"
+                                android:layout_height="48dp"
+                                android:buttonTint="#DCA900"
+                                android:checked="true"
+                                android:padding="8dp"
+                                android:text="@string/mps"
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
+
+                            <RadioButton
+                                android:id="@+id/mile_hour"
+                                android:layout_width="wrap_content"
+                                android:layout_height="48dp"
+                                android:buttonTint="#DCA900"
+                                android:padding="8dp"
+                                android:text="@string/mph"
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
+                        </RadioGroup>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Notifications Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#42000000"
+                    android:elevation="4dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_favorite_item"
+                        android:padding="12dp"
+                        android:text="@string/notifications"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/group_notifications"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="8dp">
+
+                        <RadioButton
+                            android:id="@+id/enable"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:buttonTint="#DCA900"
+                            android:checked="true"
+                            android:padding="8dp"
+                            android:text="@string/enable"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+
+                        <RadioButton
+                            android:id="@+id/disable"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:buttonTint="#DCA900"
+                            android:padding="8dp"
+                            android:text="@string/disable"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

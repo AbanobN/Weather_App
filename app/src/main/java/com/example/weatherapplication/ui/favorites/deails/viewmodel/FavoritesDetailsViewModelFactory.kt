@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.favorites.viewmodel
+package com.example.weatherapplication.ui.favorites.deails.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

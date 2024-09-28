@@ -1,5 +1,6 @@
 package com.example.weatherapplication.ui.alerts.view
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -11,13 +12,15 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import com.example.weatherapplication.MainActivity
 import com.example.weatherapplication.R
+import com.example.weatherapplication.databinding.AlarmDialogBinding
 
 class OverlayService : Service() {
 
     private lateinit var windowManager: WindowManager
-    private lateinit var overlayView: View
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var binding: AlarmDialogBinding
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -26,7 +29,7 @@ class OverlayService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        overlayView = LayoutInflater.from(this).inflate(R.layout.alarm_dialog, null)
+        binding = AlarmDialogBinding.inflate(LayoutInflater.from(this))
 
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -44,7 +47,7 @@ class OverlayService : Service() {
 
         // insert the view into the window and then display it
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(overlayView, params)
+        windowManager.addView(binding.root, params)
 
         // open the media player and start looping
         val notificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
@@ -52,16 +55,29 @@ class OverlayService : Service() {
         mediaPlayer.isLooping = true
         mediaPlayer.start()
 
-        overlayView.setOnClickListener {
+        binding.stopButton.setOnClickListener {
             stopSelf()
         }
+
+        binding.snoozeButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            val pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            pendingIntent.send()
+            stopSelf()
+        }
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        if (::overlayView.isInitialized) {
-            windowManager.removeView(overlayView)
+        if (::binding.isInitialized) {
+            windowManager.removeView(binding.root)
         }
 
         if (::mediaPlayer.isInitialized) {

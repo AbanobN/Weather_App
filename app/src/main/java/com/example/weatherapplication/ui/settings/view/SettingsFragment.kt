@@ -1,5 +1,6 @@
 package com.example.weatherapplication.ui.settings.view
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,14 +17,17 @@ import com.example.weatherapplication.data.localdatasource.sharedpreferences.Sha
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentSettingsBinding
+import com.example.weatherapplication.databinding.NonetworkAlertBinding
 import com.example.weatherapplication.ui.settings.viewmodel.SettingViewModelFactory
 import com.example.weatherapplication.ui.settings.viewmodel.SettingsViewModel
+import com.example.weatherapplication.utiltes.InternetState
 import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment() {
 
     private lateinit var _binding: FragmentSettingsBinding
     private lateinit var  settingsViewModel: SettingsViewModel
+    private var isNetwork = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,8 +40,22 @@ class SettingsFragment : Fragment() {
             AppDatabase.getDatabase(requireContext()),
             SharedPreferences(requireContext())
         )
-        settingsViewModel = ViewModelProvider(this, SettingViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
+
+        val internetState = InternetState(requireActivity().application)
+        settingsViewModel = ViewModelProvider(this, SettingViewModelFactory(WeatherRepository(remoteDataSource,localDataSource),internetState)).get(
             SettingsViewModel::class.java)
+
+
+        lifecycleScope.launch {
+            settingsViewModel.isInternetAvailable.collect { isAvailable ->
+                if (isAvailable) {
+                    isNetwork = true
+                } else {
+                    isNetwork = false
+                }
+            }
+        }
+        settingsViewModel.observeNetwork()
 
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = _binding.root
@@ -58,13 +76,28 @@ class SettingsFragment : Fragment() {
         _binding.groupLocation.setOnCheckedChangeListener{ group , checkedId ->
             when(checkedId){
                 R.id.map -> {
-                    settingsViewModel.saveLocation("map")
+                    if(isNetwork)
+                    {
+                        settingsViewModel.saveLocation("map")
 
-                    val bundle = Bundle().apply{
-                        putString("comeFrom","Setting")
+                        val bundle = Bundle().apply{
+                            putString("comeFrom","Setting")
+                        }
+
+                        findNavController().navigate(R.id.action_nav_settings_to_mapFragment,bundle)
+                    }
+                    else{
+                        val binding = NonetworkAlertBinding.inflate(LayoutInflater.from(context))
+                        val dialog = AlertDialog.Builder(context)
+                            .setView(binding.root)
+                            .create()
+
+                        binding.btnConfirm.setOnClickListener {
+                            dialog.dismiss()
+                        }
+                        dialog.show()
                     }
 
-                    findNavController().navigate(R.id.action_nav_settings_to_mapFragment,bundle)
                 }
                 else -> {
                     settingsViewModel.saveLocation("gps")
@@ -90,6 +123,21 @@ class SettingsFragment : Fragment() {
                     settingsViewModel.saveLan("en")
                     (requireActivity() as MainActivity).checkAndChangLocality()
                 }
+
+            }
+            if(!isNetwork){
+                val binding = NonetworkAlertBinding.inflate(LayoutInflater.from(context))
+                binding.tvMessage.text = getString(R.string.no_network_lang)
+
+                val dialog = AlertDialog.Builder(context)
+                    .setView(binding.root)
+                    .create()
+
+                binding.btnConfirm.setOnClickListener {
+                    dialog.dismiss()
+                }
+
+                dialog.show()
             }
         }
 
@@ -139,4 +187,6 @@ class SettingsFragment : Fragment() {
             "disable" -> _binding.groupNotifications.check(R.id.disable)
         }
     }
+
+
 }
