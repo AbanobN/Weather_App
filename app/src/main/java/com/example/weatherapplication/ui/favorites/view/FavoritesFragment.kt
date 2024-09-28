@@ -1,5 +1,6 @@
 package com.example.weatherapplication.ui.favorites.view
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,8 +18,10 @@ import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentFavoritesBinding
+import com.example.weatherapplication.databinding.NonetworkAlertBinding
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesViewModel
 import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesViewModelFactory
+import com.example.weatherapplication.utiltes.InternetState
 import kotlinx.coroutines.launch
 
 class FavoritesFragment : Fragment() , FavoritesClickListener{
@@ -26,6 +29,7 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
     private lateinit var fragmentFavoritesBinding: FragmentFavoritesBinding
     private lateinit var favoritesAdapter: FavoritesAdapter
     private lateinit var favoritesViewModel:FavoritesViewModel
+    private var isNetwork = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,11 +42,25 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
             SharedPreferences((requireContext()))
         )
 
+        val internetState = InternetState(requireActivity().application)
+
         favoritesViewModel =
-            ViewModelProvider(this, FavoritesViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(FavoritesViewModel::class.java)
+            ViewModelProvider(this, FavoritesViewModelFactory(WeatherRepository(remoteDataSource,localDataSource),internetState)).get(FavoritesViewModel::class.java)
 
 
         favoritesViewModel.fetchFavorites()
+
+        lifecycleScope.launch {
+            favoritesViewModel.isInternetAvailable.collect { isAvailable ->
+                if (isAvailable) {
+                    isNetwork = true
+                } else {
+                    isNetwork = false
+                }
+            }
+        }
+
+        favoritesViewModel.observeNetwork()
 
         fragmentFavoritesBinding = FragmentFavoritesBinding.inflate(inflater, container, false)
         val root: View = fragmentFavoritesBinding.root
@@ -68,11 +86,27 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
         }
 
         fragmentFavoritesBinding.openMapBtn.setOnClickListener{
-            val bundle = Bundle().apply{
-                putString("comeFrom","Favorites")
-            }
+            if(isNetwork){
+                val bundle = Bundle().apply{
+                    putString("comeFrom","Favorites")
+                }
 
-            findNavController().navigate(R.id.action_nav_favorites_to_mapFragment,bundle)
+                findNavController().navigate(R.id.action_nav_favorites_to_mapFragment,bundle)
+            }
+            else{
+                val binding = NonetworkAlertBinding.inflate(LayoutInflater.from(context))
+
+                val dialog = AlertDialog.Builder(context)
+                    .setView(binding.root)
+                    .create()
+
+                binding.btnConfirm.setOnClickListener {
+                    dialog.dismiss()
+                }
+
+                dialog.show()
+
+            }
         }
     }
 
@@ -97,12 +131,29 @@ class FavoritesFragment : Fragment() , FavoritesClickListener{
     }
 
     override fun onItemClick(city: City) {
-        val bundle = Bundle().apply {
-            putDouble("lon", city.coord.lon)
-            putDouble("lat", city.coord.lat)
-        }
+        if(isNetwork)
+        {
+            val bundle = Bundle().apply {
+                putDouble("lon", city.coord.lon)
+                putDouble("lat", city.coord.lat)
+            }
 
-        findNavController().navigate(R.id.action_favoritesFragment_to_favoritesDetailsFragment, bundle)
+            findNavController().navigate(R.id.action_favoritesFragment_to_favoritesDetailsFragment, bundle)
+        }
+        else{
+            val binding = NonetworkAlertBinding.inflate(LayoutInflater.from(context))
+
+            val dialog = AlertDialog.Builder(context)
+                .setView(binding.root)
+                .create()
+
+            binding.btnConfirm.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+
+        }
     }
 
 }

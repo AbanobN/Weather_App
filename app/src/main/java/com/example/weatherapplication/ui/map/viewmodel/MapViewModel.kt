@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapplication.data.pojo.City
 import com.example.weatherapplication.data.pojo.Coord
-import com.example.weatherapplication.data.repository.WeatherRepository
+import com.example.weatherapplication.data.repository.IWeatherRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class MapViewModel(private val weatherRepository: WeatherRepository) : ViewModel() {
+class MapViewModel(private val weatherRepository: IWeatherRepository) : ViewModel() {
 
     private val _operationStatus = MutableStateFlow("")
     val operationStatus: StateFlow<String> get() = _operationStatus

@@ -1,10 +1,18 @@
-package com.example.weatherapplication.ui.settings
+package com.example.weatherapplication.ui.settings.view
 
+import android.app.AlertDialog
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -17,15 +25,18 @@ import com.example.weatherapplication.data.localdatasource.sharedpreferences.Sha
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentSettingsBinding
-import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
-import com.example.weatherapplication.ui.map.viewmodel.MapViewModel
-import com.example.weatherapplication.ui.map.viewmodel.MapViewModelFactory
+import com.example.weatherapplication.databinding.NonetworkAlertBinding
+import com.example.weatherapplication.ui.settings.viewmodel.SettingViewModelFactory
+import com.example.weatherapplication.ui.settings.viewmodel.SettingsViewModel
+import com.example.weatherapplication.utiltes.InternetState
 import kotlinx.coroutines.launch
+import android.Manifest
 
 class SettingsFragment : Fragment() {
 
     private lateinit var _binding: FragmentSettingsBinding
-    private lateinit var  settingsViewModel:SettingsViewModel
+    private lateinit var  settingsViewModel: SettingsViewModel
+    private var isNetwork = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,8 +49,22 @@ class SettingsFragment : Fragment() {
             AppDatabase.getDatabase(requireContext()),
             SharedPreferences(requireContext())
         )
-        settingsViewModel = ViewModelProvider(this, SettingViewModelFactory(WeatherRepository(remoteDataSource,localDataSource))).get(
+
+        val internetState = InternetState(requireActivity().application)
+        settingsViewModel = ViewModelProvider(this, SettingViewModelFactory(WeatherRepository(remoteDataSource,localDataSource),internetState)).get(
             SettingsViewModel::class.java)
+
+
+        lifecycleScope.launch {
+            settingsViewModel.isInternetAvailable.collect { isAvailable ->
+                if (isAvailable) {
+                    isNetwork = true
+                } else {
+                    isNetwork = false
+                }
+            }
+        }
+        settingsViewModel.observeNetwork()
 
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = _binding.root
@@ -60,13 +85,28 @@ class SettingsFragment : Fragment() {
         _binding.groupLocation.setOnCheckedChangeListener{ group , checkedId ->
             when(checkedId){
                 R.id.map -> {
-                    settingsViewModel.saveLocation("map")
+                    if(isNetwork)
+                    {
+                        settingsViewModel.saveLocation("map")
 
-                    val bundle = Bundle().apply{
-                        putString("comeFrom","Setting")
+                        val bundle = Bundle().apply{
+                            putString("comeFrom","Setting")
+                        }
+
+                        findNavController().navigate(R.id.action_nav_settings_to_mapFragment,bundle)
+                    }
+                    else{
+                        val binding = NonetworkAlertBinding.inflate(LayoutInflater.from(context))
+                        val dialog = AlertDialog.Builder(context)
+                            .setView(binding.root)
+                            .create()
+
+                        binding.btnConfirm.setOnClickListener {
+                            dialog.dismiss()
+                        }
+                        dialog.show()
                     }
 
-                    findNavController().navigate(R.id.action_nav_settings_to_mapFragment,bundle)
                 }
                 else -> {
                     settingsViewModel.saveLocation("gps")
@@ -92,6 +132,21 @@ class SettingsFragment : Fragment() {
                     settingsViewModel.saveLan("en")
                     (requireActivity() as MainActivity).checkAndChangLocality()
                 }
+
+            }
+            if(!isNetwork){
+                val binding = NonetworkAlertBinding.inflate(LayoutInflater.from(context))
+                binding.tvMessage.text = getString(R.string.no_network_lang)
+
+                val dialog = AlertDialog.Builder(context)
+                    .setView(binding.root)
+                    .create()
+
+                binding.btnConfirm.setOnClickListener {
+                    dialog.dismiss()
+                }
+
+                dialog.show()
             }
         }
 
@@ -112,8 +167,19 @@ class SettingsFragment : Fragment() {
 
         _binding.groupNotifications.setOnCheckedChangeListener{ _ , checkedId ->
             when(checkedId){
-                R.id.disable -> settingsViewModel.saveNotification("disable")
-                else -> settingsViewModel.saveNotification("enable")
+                R.id.disable -> {
+                    settingsViewModel.saveNotification("disable")
+                    disableNotifications()
+                    Toast.makeText(requireContext(), "Notifications disabled", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    settingsViewModel.saveNotification("enable")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        requestNotificationPermission()
+                    } else {
+                        Toast.makeText(requireContext(), "Notifications enabled", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
@@ -141,4 +207,27 @@ class SettingsFragment : Fragment() {
             "disable" -> _binding.groupNotifications.check(R.id.disable)
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun requestNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                1002
+            )
+        } else {
+            Toast.makeText(requireContext(), "Notification Permission already granted", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun disableNotifications() {
+        val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancelAll()
+    }
+
+
 }

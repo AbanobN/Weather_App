@@ -34,19 +34,19 @@
 
     <fragment
         android:id="@+id/nav_favorites_details"
-        android:name="com.example.weatherapplication.ui.favorites.view.FavoritesDetailsFragment"
+        android:name="com.example.weatherapplication.ui.favorites.deails.view.FavoritesDetailsFragment"
         android:label="@string/menu_favorites"
         tools:layout="@layout/fragment_favorites_details"/>
 
     <fragment
         android:id="@+id/nav_alerts"
-        android:name="com.example.weatherapplication.ui.alerts.AlertsFragment"
+        android:name="com.example.weatherapplication.ui.alerts.view.AlertsFragment"
         android:label="@string/menu_alerts"
         tools:layout="@layout/fragment_alerts" />
 
     <fragment
         android:id="@+id/nav_settings"
-        android:name="com.example.weatherapplication.ui.settings.SettingsFragment"
+        android:name="com.example.weatherapplication.ui.settings.view.SettingsFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_settings" >
         <action
@@ -72,6 +72,9 @@
         <action
             android:id="@+id/action_mapFragment_to_nav_home"
             app:destination="@id/nav_home" />
+        <action
+            android:id="@+id/action_mapFragment_to_nav_settings"
+            app:destination="@id/nav_settings" />
     </fragment>
 
 </navigation>

@@ -1,58 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout4"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="#331866">
+    android:layout_height="wrap_content"
+    android:background="#331866"
+    android:padding="10dp">
 
     <!-- Alarm Title -->
+
+    <!-- Alarm Message -->
+
     <TextView
         android:id="@+id/alarm_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
         android:paddingBottom="16dp"
         android:text="@string/alarm"
         android:textColor="@color/white"
         android:textSize="24dp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Alarm Message -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieView"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alarm_title"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/alarm_animation" />
+
+    <!-- Buttons for Stop and Snooze -->
+
+
     <TextView
         android:id="@+id/alarm_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
         android:paddingBottom="24dp"
         android:text="@string/alert_weather_dialog"
         android:textColor="@color/white"
-        android:textSize="18dp" />
+        android:textSize="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lottieView" />
 
-    <!-- Buttons for Stop and Snooze -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:orientation="horizontal">
+    <Button
+        android:id="@+id/stop_button"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#DE0752"
+        android:text="@string/stop"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toStartOf="@+id/snooze_button"
+        app:layout_constraintHorizontal_bias="0.174"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alarm_message" />
 
-        <Button
-            android:id="@+id/stop_button"
-            android:layout_width="150dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="10dp"
-            android:backgroundTint="@color/purple_200"
-            android:text="@string/stop"
-            android:textColor="@android:color/white" />
+    <Button
+        android:id="@+id/snooze_button"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="4dp"
+        android:backgroundTint="#35B11F"
+        android:text="@string/go_to_weather"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alarm_message" />
 
-        <Button
-            android:id="@+id/snooze_button"
-            android:layout_width="150dp"
-            android:layout_height="48dp"
-            android:backgroundTint="#1FB1AC"
-            android:text="@string/go_to_weather"
-            android:textColor="@android:color/white" />
-    </LinearLayout>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

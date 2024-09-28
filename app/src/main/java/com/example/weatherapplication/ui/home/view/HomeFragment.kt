@@ -13,10 +13,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
@@ -30,6 +28,9 @@ import com.example.weatherapplication.ui.adapters.DailyAdapter
 import com.example.weatherapplication.ui.adapters.HourlyAdapter
 import com.example.weatherapplication.ui.home.viewmodel.HomeViewModel
 import com.example.weatherapplication.ui.home.viewmodel.HomeViewModelFactory
+import com.example.weatherapplication.utiltes.ForecastApiState
+import com.example.weatherapplication.utiltes.InternetState
+import com.example.weatherapplication.utiltes.WeatherApiState
 import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertToLocalTime
 import com.example.weatherapplication.utiltes.convertWindSpeed
@@ -43,7 +44,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import com.example.weatherapplication.data.pojo.Location as CustomLocation
+import com.example.weatherapplication.data.pojo.Coord as CustomLocation
 
 class HomeFragment : Fragment() {
 
@@ -53,6 +54,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var tempUnit: String
     private lateinit var windSpeed: String
+    private var isNetwork = false
 
     private var _location = MutableStateFlow<CustomLocation>(CustomLocation(0.0, 0.0))
 
@@ -67,10 +69,8 @@ class HomeFragment : Fragment() {
     ) { permissions ->
         if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
             permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-            // Permission granted, call getCurrentLocation
             getCurrentLocation()
         } else {
-            // Permission denied, handle the case
             Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show()
         }
     }
@@ -82,6 +82,7 @@ class HomeFragment : Fragment() {
     ): View {
         fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
 
+        val internetState = InternetState(requireActivity().application)
 
         val remoteDataSource = RemoteDataSource()
         val localDataSource = LocalDataSource(
@@ -91,10 +92,23 @@ class HomeFragment : Fragment() {
 
         homeViewModel = ViewModelProvider(
             this,
-            HomeViewModelFactory(WeatherRepository(remoteDataSource, localDataSource))
+            HomeViewModelFactory(WeatherRepository(remoteDataSource, localDataSource),internetState)
         ).get(
             HomeViewModel::class.java
         )
+
+        lifecycleScope.launch {
+            homeViewModel.isInternetAvailable.collect { isAvailable ->
+                if (isAvailable) {
+                    isNetwork = true
+                } else {
+                    isNetwork = false
+                }
+            }
+        }
+
+        homeViewModel.observeNetwork()
+
 
         val latArg = arguments?.getFloat("lat")?.toDouble()
         val lonArg = arguments?.getFloat("lon")?.toDouble()
@@ -102,8 +116,8 @@ class HomeFragment : Fragment() {
 
         if(latArg != null && latArg > 0 && lonArg != null && lonArg > 0)
         {
-            _location.value.latitude = latArg
-            _location.value.longitude = lonArg
+            _location.value.lat = latArg
+            _location.value.lon = lonArg
         }
         else{
             checkLocationPermission()
@@ -111,12 +125,12 @@ class HomeFragment : Fragment() {
 
 
 
+
         lifecycleScope.launch {
             _location.collect { loc ->
                 homeViewModel.apply {
-                    fetchWeatherData(loc.latitude, loc.longitude)
-                    fetchForecastData(loc.latitude, loc.longitude)
-                    Log.d("TAG", "onCreateView: ${loc.latitude} , ${loc.longitude}")
+                    fetchWeatherData(loc.lat, loc.lon,isNetwork)
+                    fetchForecastData(loc.lat, loc.lon,isNetwork)
                 }
             }
         }
@@ -143,28 +157,63 @@ class HomeFragment : Fragment() {
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.weatherData.collect { weatherResponse ->
-                    weatherResponse?.let { updateUI(it) }
+        lifecycleScope.launch {
+            homeViewModel.weatherApiState.collect { state ->
+                when (state) {
+                    is WeatherApiState.Loading -> {
+                        // Show loading UI
+                        fragmentHomeBinding.weatherProgressBar.visibility = View.VISIBLE
+                        fragmentHomeBinding.imgWeather.visibility = View.GONE
+                    }
+                    is WeatherApiState.Success -> {
+                        // Update UI with weather data
+                        val weatherResponse = state.weatherResponse
+
+                        // Update your UI components here
+                        fragmentHomeBinding.weatherProgressBar.visibility = View.GONE
+                        fragmentHomeBinding.imgWeather.visibility = View.VISIBLE
+                        updateUI(weatherResponse)
+                    }
+                    is WeatherApiState.Failure -> {
+                        Toast.makeText(requireContext(), "Weather fetch error: ${state.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                homeViewModel.days.collect { dailyForecasts ->
-                    updateDailyRecycler(dailyForecasts)
+        lifecycleScope.launch {
+            homeViewModel.forecastApiState.collect { state ->
+                when (state) {
+                    is ForecastApiState.Loading -> {
+                        // Show loading UI for forecast
+                        fragmentHomeBinding.daysProgressBar.visibility = View.VISIBLE
+                        fragmentHomeBinding.recViewDays.visibility = View.GONE
+
+                        fragmentHomeBinding.hoursProgressBar.visibility = View.VISIBLE
+                        fragmentHomeBinding.recViewHourly.visibility = View.GONE
+
+                    }
+                    is ForecastApiState.Success -> {
+                        val dailyForecasts = state.dailyForecasts
+                        val hourlyForecasts = state.hourlyForecasts
+
+                        // Update your UI components here
+                        fragmentHomeBinding.daysProgressBar.visibility = View.GONE
+                        fragmentHomeBinding.recViewDays.visibility = View.VISIBLE
+                        updateDailyRecycler(dailyForecasts)
+
+                        fragmentHomeBinding.hoursProgressBar.visibility = View.GONE
+                        fragmentHomeBinding.recViewHourly.visibility = View.VISIBLE
+                        updateHourlyRecycler(hourlyForecasts)
+                    }
+                    is ForecastApiState.Failure -> {
+                        // Show error message for forecast
+                        Toast.makeText(requireContext(), "Forecast fetch error: ${state.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                homeViewModel.hours.collect { hourlyForecasts ->
-                    updateHourlyRecycler(hourlyForecasts)
-                }
-            }
-        }
+
     }
 
     private fun setupRecyclerViews() {
@@ -258,7 +307,6 @@ class HomeFragment : Fragment() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Request location permissions
             locationPermissionRequest.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -266,7 +314,6 @@ class HomeFragment : Fragment() {
                 )
             )
         } else {
-            // Permission already granted, get location
             getCurrentLocation()
         }
     }
@@ -276,15 +323,13 @@ class HomeFragment : Fragment() {
         fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
             val androidLocation = task.result
             if (androidLocation != null) {
-                // Convert Android Location to Custom Location
-                val customLocation = CustomLocation(androidLocation.latitude, androidLocation.longitude)
+                val customLocation = CustomLocation(androidLocation.longitude, androidLocation.latitude)
                 // Update the StateFlow or LiveData with the custom location
                 _location.value = customLocation
             } else {
-                // Create a proper LocationRequest
                 val locationRequest = LocationRequest.Builder(
-                    Priority.PRIORITY_HIGH_ACCURACY, 10000 // Every 10 seconds
-                ).setMinUpdateIntervalMillis(5000) // Minimum interval of 5 seconds
+                    Priority.PRIORITY_HIGH_ACCURACY, 10000
+                ).setMinUpdateIntervalMillis(5000)
                     .build()
 
                 fusedLocationProviderClient.requestLocationUpdates(
@@ -293,9 +338,7 @@ class HomeFragment : Fragment() {
                         override fun onLocationResult(locationResult: LocationResult) {
                             val androidLastLocation = locationResult.lastLocation
                             androidLastLocation?.let {
-                                // Convert Android Location to Custom Location
-                                val customLocation = CustomLocation(it.latitude, it.longitude)
-                                // Update the StateFlow or LiveData with the custom location
+                                val customLocation = CustomLocation(it.longitude, it.latitude)
                                 _location.value = customLocation
                             }
                             fusedLocationProviderClient.removeLocationUpdates(this)
@@ -306,5 +349,6 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
 
 }

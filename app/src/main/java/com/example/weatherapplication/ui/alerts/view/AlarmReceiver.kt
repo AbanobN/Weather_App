@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.alerts
+package com.example.weatherapplication.ui.alerts.view
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -16,33 +16,18 @@ class AlarmReceiver : BroadcastReceiver() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("AlarmReceiver", "Alarm Received")
-
-        // Retrieve the scheduled time and type from the intent
-//        val scheduledTime = intent?.getLongExtra("SCHEDULED_TIME", -1L) ?: -1L
-
-//        val alertType = intent?.getStringExtra("ALERT_TYPE") ?: "ALARM"
-
-        // Check if the current time has reached or passed the scheduled time
-//        if (scheduledTime != -1L && System.currentTimeMillis() >= scheduledTime) {
             when (intent?.action) {
                 "ALARM" -> {
                     // Start the overlay service for alarm
                     val serviceIntent = Intent(context, OverlayService::class.java)
                     context?.startService(serviceIntent)
-                    Log.d("AlarmReceiver", "Alarm Triggered and Overlay Service Started")
                 }
                 "NOTIFICATION" -> {
                     // Show a notification for the scheduled time
                     showNotification(context)
-                    Log.d("AlarmReceiver", "Notification Triggered")
                 }
             }
         }
-//    else {
-//        Log.d("AlarmReceiver", "Alarm or Notification is not yet due: $scheduledTime")
-//    }
-//}
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showNotification(context: Context?) {
@@ -52,13 +37,15 @@ class AlarmReceiver : BroadcastReceiver() {
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val notification = Notification.Builder(context, "channel_id")
-            .setContentTitle("Alert")
+            .setContentTitle("Weather Notification")
             .setContentText("It's time to check the weather!")
-            .setSmallIcon(R.drawable.ic_alerts)
+            .setSmallIcon(R.drawable.weather_app_logo)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
 
         notificationManager.notify(0, notification)
     }
+
+
 }

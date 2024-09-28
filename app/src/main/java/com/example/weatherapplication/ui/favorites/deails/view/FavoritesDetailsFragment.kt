@@ -1,9 +1,10 @@
-package com.example.weatherapplication.ui.favorites.view
+package com.example.weatherapplication.ui.favorites.deails.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -20,8 +21,10 @@ import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentFavoritesDetailsBinding
 import com.example.weatherapplication.ui.adapters.DailyAdapter
 import com.example.weatherapplication.ui.adapters.HourlyAdapter
-import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesDetailsViewModel
-import com.example.weatherapplication.ui.favorites.viewmodel.FavoritesDetailsViewModelFactory
+import com.example.weatherapplication.ui.favorites.deails.viewmodel.FavoritesDetailsViewModel
+import com.example.weatherapplication.ui.favorites.deails.viewmodel.FavoritesDetailsViewModelFactory
+import com.example.weatherapplication.utiltes.ForecastApiState
+import com.example.weatherapplication.utiltes.WeatherApiState
 import com.example.weatherapplication.utiltes.convertTemperature
 import com.example.weatherapplication.utiltes.convertWindSpeed
 import com.example.weatherapplication.utiltes.getWeatherIconResource
@@ -55,7 +58,8 @@ class FavoritesDetailsFragment : Fragment() {
 
         favoritesDetailsViewModel = ViewModelProvider(this, FavoritesDetailsViewModelFactory(
             WeatherRepository(remoteDataSource,localDataSource)
-        )).get(
+        )
+        ).get(
         FavoritesDetailsViewModel::class.java)
 
         favoritesDetailsViewModel.updateSettings()
@@ -87,27 +91,63 @@ class FavoritesDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerViews()
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED){
-                favoritesDetailsViewModel.weatherData.collect { weatherResponse ->
-                    weatherResponse?.let { updateUI(it) }
+        lifecycleScope.launch {
+            favoritesDetailsViewModel.weatherApiState.collect { state ->
+                when (state) {
+                    is WeatherApiState.Loading -> {
+                        // Show loading UI
+                        favoritesDetailsBinding.weatherProgressBar.visibility = View.VISIBLE
+                        favoritesDetailsBinding.fvDetailsHead.visibility = View.GONE
+                    }
+                    is WeatherApiState.Success -> {
+                        // Update UI with weather data
+                        val weatherResponse = state.weatherResponse
+
+                        // Update your UI components here
+                        favoritesDetailsBinding.weatherProgressBar.visibility = View.GONE
+                        favoritesDetailsBinding.fvDetailsHead.visibility = View.VISIBLE
+                        updateUI(weatherResponse)
+                    }
+                    is WeatherApiState.Failure -> {
+                        Toast.makeText(requireContext(), "Weather fetch error: ${state.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED){
-                favoritesDetailsViewModel.days.collect { dailyForecasts ->
-                    updateDailyRecycler(dailyForecasts)
+
+        lifecycleScope.launch {
+            favoritesDetailsViewModel.forecastApiState.collect { state ->
+                when (state) {
+                    is ForecastApiState.Loading -> {
+                        // Show loading UI for forecast
+                        favoritesDetailsBinding.daysProgressBar.visibility = View.VISIBLE
+                        favoritesDetailsBinding.recViewDays.visibility = View.GONE
+
+                        favoritesDetailsBinding.hoursProgressBar.visibility = View.VISIBLE
+                        favoritesDetailsBinding.recViewHourly.visibility = View.GONE
+
+                    }
+                    is ForecastApiState.Success -> {
+                        val dailyForecasts = state.dailyForecasts
+                        val hourlyForecasts = state.hourlyForecasts
+
+                        // Update your UI components here
+                        favoritesDetailsBinding.daysProgressBar.visibility = View.GONE
+                        favoritesDetailsBinding.recViewDays.visibility = View.VISIBLE
+                        updateDailyRecycler(dailyForecasts)
+
+                        favoritesDetailsBinding.hoursProgressBar.visibility = View.GONE
+                        favoritesDetailsBinding.recViewHourly.visibility = View.VISIBLE
+                        updateHourlyRecycler(hourlyForecasts)
+                    }
+                    is ForecastApiState.Failure -> {
+                        // Show error message for forecast
+                        Toast.makeText(requireContext(), "Forecast fetch error: ${state.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED){
-                favoritesDetailsViewModel.hours.collect { hourlyForecasts ->
-                    updateHourlyRecycler(hourlyForecasts)
-                }
-            }
-        }
+
     }
 
     private fun setupRecyclerViews() {

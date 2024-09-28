@@ -57,4 +57,9 @@
     <string name="notifications">الإشعارات</string>
     <string name="enable">تفعيل</string>
     <string name="disable">تعطيل</string>
+
+    <string name="no_network">لا يوجد اتصال بالشبكة</string>
+    <string name="open_network">يرجى فتح الشبكة والمحاولة مرة أخرى.</string>
+    <string name="no_network_lang">تحتاج إلى اتصال بالشبكة لإكمال الترجمة. افتح الشبكة وحاول مرة أخرى.</string>
+    <string name="ok">حسنًا</string>
 </resources>

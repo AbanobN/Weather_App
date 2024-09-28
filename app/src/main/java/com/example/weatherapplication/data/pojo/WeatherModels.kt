@@ -1,9 +1,11 @@
 package com.example.weatherapplication.data.pojo
 
+import androidx.annotation.Nullable
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+@Entity(tableName = "last_weather")
 data class WeatherResponse(
     val main: Main,
     val weather: List<Weather>,
@@ -13,12 +15,12 @@ data class WeatherResponse(
     val dt: Long,
     val timezone: Int,
     val coord: Coord,
-    var name: String,
+    @PrimaryKey var name: String,
     var uV : UVResponse? = null,
 )
 
 
-data class Coord(val lon: Double, val lat: Double)
+data class Coord(var lon: Double, var lat: Double)
 
 data class Weather(
     val description: String,
@@ -56,11 +58,13 @@ data class City(
     @Embedded val coord: Coord
 )
 
-
+@Entity(tableName = "forecast_items")
 data class ForecastItem(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val dt: Long,
     val main: Main,
     val weather: List<Weather>,
+    var type: String?
 )
 
 data class UVResponse(
@@ -73,10 +77,6 @@ data class AlarmData(
     val time:Long
 )
 
-data class Location(
-    var latitude : Double,
-    var longitude : Double
-)
 
 
 

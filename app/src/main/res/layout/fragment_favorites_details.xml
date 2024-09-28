@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context=".ui.favorites.view.FavoritesDetailsFragment">
+    tools:context=".ui.favorites.deails.view.FavoritesDetailsFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,14 +20,29 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <ProgressBar
+                android:id="@+id/weatherProgressBar"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:indeterminateTint="#331866"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <LinearLayout
+                android:id="@+id/fv_details_head"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/rounded_toolbar_background"
                 android:orientation="vertical"
-                android:layout_marginTop="100dp">
+                android:layout_marginTop="100dp"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/txtCity"
@@ -108,6 +123,19 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <ProgressBar
+                android:id="@+id/hoursProgressBar"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:indeterminateTint="#331866"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rec_view_hourly"
                 android:layout_width="match_parent"
@@ -115,7 +143,8 @@
                 android:clipToPadding="false"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                tools:listitem="@layout/hours_item" />
+                tools:listitem="@layout/hours_item"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/txtNextDays"
@@ -129,13 +158,27 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <ProgressBar
+                android:id="@+id/daysProgressBar"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:indeterminateTint="#331866"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rec_view_days"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:nestedScrollingEnabled="true"
-                tools:listitem="@layout/days_item" />
+                tools:listitem="@layout/days_item"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -1,4 +1,4 @@
-package com.example.weatherapplication.ui.alerts
+package com.example.weatherapplication.ui.alerts.view
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -16,7 +16,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,8 +27,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.transition.Visibility
-import com.example.weatherapplication.R
 import com.example.weatherapplication.data.localdatasource.database.AppDatabase
 import com.example.weatherapplication.data.localdatasource.localdatsource.LocalDataSource
 import com.example.weatherapplication.data.localdatasource.sharedpreferences.SharedPreferences
@@ -37,6 +34,8 @@ import com.example.weatherapplication.data.pojo.AlarmData
 import com.example.weatherapplication.data.remotedatasource.remotedatasource.RemoteDataSource
 import com.example.weatherapplication.data.repository.WeatherRepository
 import com.example.weatherapplication.databinding.FragmentAlertsBinding
+import com.example.weatherapplication.ui.alerts.viewmodel.AlertsViewModel
+import com.example.weatherapplication.ui.alerts.viewmodel.AlertsViewModelFactory
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -91,7 +90,10 @@ class AlertsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        myAdapter = AlarmAdapter()
+        myAdapter = AlarmAdapter {
+            alertsViewModel.deleteAlarm(requireContext(), it)
+        }
+
         binding.recViewAlerts.layoutManager= LinearLayoutManager(context)
         binding.recViewAlerts.adapter=myAdapter
 
@@ -196,9 +198,9 @@ class AlertsFragment : Fragment() {
             Toast.makeText(requireContext(), "Cannot set alarm for past time!", Toast.LENGTH_SHORT).show()
             return
         }
+
         val alarmRequest =getRequestCodeFromPreferences()
         val alarmTimeInMillis = calendar.timeInMillis
-        Log.d("AlarmTime", "Setting alarm for: $alarmTimeInMillis (${calendar.time})")
 
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(requireContext(), AlarmReceiver::class.java)
@@ -226,7 +228,6 @@ class AlertsFragment : Fragment() {
             Toast.makeText(requireContext(), "Alarm Set Successfully!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Failed to set alarm: ${e.message}", Toast.LENGTH_SHORT).show()
-            Log.e("AlarmError", "Error setting alarm", e)
         }
         alertsViewModel.insertAlarm(AlarmData(alarmRequest,alarmTimeInMillis))
     }
@@ -303,7 +304,7 @@ class AlertsFragment : Fragment() {
 
     private fun getRequestCodeFromPreferences(): Int {
         val sharedPrefs = requireActivity().getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-        return sharedPrefs.getInt(requestCodeKey, 0) // Default value is 0
+        return sharedPrefs.getInt(requestCodeKey, 0)
     }
 
     // Example function where you can modify the requestCode and save it
