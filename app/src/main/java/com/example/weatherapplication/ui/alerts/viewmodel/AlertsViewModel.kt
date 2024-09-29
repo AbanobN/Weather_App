@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapplication.data.pojo.AlarmData
@@ -19,11 +18,14 @@ class AlertsViewModel(private val weatherRepository: IWeatherRepository): ViewMo
     private val _alarms= MutableStateFlow<List<AlarmData>>(emptyList())
     val alarms : StateFlow<List<AlarmData>> get() = _alarms
 
+    var requestCode: Int = 0
+
 
     init {
         val currentTimeInMillis = System.currentTimeMillis()
         deleteOldAlarms(currentTimeInMillis)
         getAlarms()
+        requestCode = weatherRepository.getRequestCode()
     }
 
 
@@ -76,6 +78,12 @@ class AlertsViewModel(private val weatherRepository: IWeatherRepository): ViewMo
 
     }
 
+    fun updateRequestCode() {
+        requestCode++
+        weatherRepository.setRequestCode(requestCode)
+    }
 
-
+    fun getCode(): Int{
+        return weatherRepository.getRequestCode()
+    }
 }

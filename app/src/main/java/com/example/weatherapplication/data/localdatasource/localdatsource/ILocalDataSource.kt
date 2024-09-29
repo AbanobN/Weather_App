@@ -27,6 +27,8 @@ interface ILocalDataSource {
     fun setNotification(notification: String)
     fun getNotification(): String
     fun getAllLocalAlarm(): Flow<List<AlarmData>>
+    fun getRequestCode() : Int
+    fun setRequestCode(requestCode: Int)
 
     suspend fun insertAlarmData(alarmData: AlarmData)
 

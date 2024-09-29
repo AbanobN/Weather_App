@@ -44,4 +44,11 @@ class SharedPreferences(context: Context) : ISharedPreferences {
     override fun getNotification(): String {
         return preferences.getString("notification", "enable").toString()
     }
+
+    override fun saveRequestCode(requestCode: Int){
+        preferences.edit().putInt("request_code", requestCode).apply()
+    }
+    override fun getRequestCode(): Int {
+        return preferences.getInt("request_code", 0)
+    }
 }

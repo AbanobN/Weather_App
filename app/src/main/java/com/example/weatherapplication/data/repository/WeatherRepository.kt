@@ -184,6 +184,14 @@ class WeatherRepository(
         return localDataSource.getNotification()
     }
 
+    override fun getRequestCode() : Int{
+        return localDataSource.getRequestCode()
+    }
+
+    override fun setRequestCode(requestCode: Int){
+        localDataSource.setRequestCode(requestCode)
+    }
+
     override fun getAllLocalAlarm(): Flow<List<AlarmData>> {
         return localDataSource.getAllLocalAlarm()
     }

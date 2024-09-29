@@ -42,10 +42,7 @@ import java.util.Calendar
 class AlertsFragment : Fragment() {
 
     private val notificationChannelId = "channel_id"
-
-    private val sharedPreferencesName = "alert_preferences"
-    private val requestCodeKey = "request_code"
-    var requestCode: Int = 0
+    
     private lateinit var alertsViewModel: AlertsViewModel
     private lateinit var myAdapter : AlarmAdapter
     private lateinit var binding : FragmentAlertsBinding
@@ -62,9 +59,6 @@ class AlertsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentAlertsBinding.inflate(inflater, container, false)
-
-        requestCode = getRequestCodeFromPreferences()
-
 
         createNotificationChannel()
 
@@ -167,7 +161,8 @@ class AlertsFragment : Fragment() {
 
         val types = arrayOf("Alarm", "Notification")
         builder.setItems(types) { _, which ->
-            updateRequestCode()
+            alertsViewModel.updateRequestCode()
+            //updateRequestCode()
             when (which) {
                 0 -> checkAlarmPermission(calendar)
                 1 -> checkNotificationPermission(calendar)
@@ -199,7 +194,8 @@ class AlertsFragment : Fragment() {
             return
         }
 
-        val alarmRequest =getRequestCodeFromPreferences()
+        val alarmRequest = alertsViewModel.getCode()
+
         val alarmTimeInMillis = calendar.timeInMillis
 
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -252,7 +248,7 @@ class AlertsFragment : Fragment() {
         // Create a PendingIntent for the AlarmReceiver
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
-            getRequestCodeFromPreferences(),
+            alertsViewModel.getCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -302,21 +298,4 @@ class AlertsFragment : Fragment() {
         }
     }
 
-    private fun getRequestCodeFromPreferences(): Int {
-        val sharedPrefs = requireActivity().getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-        return sharedPrefs.getInt(requestCodeKey, 0)
-    }
-
-    // Example function where you can modify the requestCode and save it
-    private fun updateRequestCode() {
-
-        requestCode++
-
-        val sharedPrefs =
-            requireActivity().getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            putInt(requestCodeKey, requestCode)
-            apply()
-        }
-    }
 }

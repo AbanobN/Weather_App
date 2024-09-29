@@ -11,4 +11,6 @@ interface ISharedPreferences {
     fun getUnit(): String
     fun saveNotification(language: String)
     fun getNotification(): String
+    fun saveRequestCode(requestCode: Int)
+    fun getRequestCode(): Int
 }

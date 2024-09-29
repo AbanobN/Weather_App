@@ -65,6 +65,14 @@ class LocalDataSource(private val database: AppDatabase, private val sharedPrefe
         return sharedPreferences.getNotification()
     }
 
+    override fun getRequestCode() : Int {
+        return sharedPreferences.getRequestCode()
+    }
+
+    override fun setRequestCode(requestCode: Int){
+        sharedPreferences.saveRequestCode(requestCode)
+    }
+
     override fun getAllLocalAlarm(): Flow<List<AlarmData>> {
         return alarmDao.getAllLocalAlarm()
     }
